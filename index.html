@@ -1,19 +1,119 @@
-<div className="rounded-2xl border border-rose-200 bg-white p-6 shadow-md">
-  <h2 className="mb-4 text-lg font-bold leading-relaxed text-rose-700">{q.stem}</h2>
+// App.tsx
+import React, { useMemo, useState } from "react";
 
-  <div className="grid grid-cols-1 gap-3">
-    {q.choices.map((c) => (
-      <button
-        key={c.choiceId}
-        onClick={() => setChoice(c.choiceId)}
-        className={`w-full rounded-xl border p-3 text-left text-sm transition ${
-          selected === c.choiceId
-            ? "border-rose-400 bg-rose-50 text-rose-700"
-            : "border-rose-200 hover:border-rose-300"
-        }`}
-      >
-        {c.label}
-      </button>
-    ))}
-  </div>
-</div>
+type Stage = 1;
+type ChoiceId = "A" | "B" | "C" | "D";
+type Choice = { choiceId: ChoiceId; label: string };
+type Question = { id: string; stage: Stage; stem: string; choices: Choice[] };
+type Answer = { questionId: string; choiceId: ChoiceId };
+type Result = {
+  stylePct: { anxious: number; avoidant: number; fearful: number; secure: number };
+  summary: string;
+};
+
+const QUESTIONS: Question[] = [
+  {
+    id: "s1a-1",
+    stage: 1,
+    stem: "過去の恋愛で、好きな人からの返信が遅かったとき、どうしていましたか？",
+    choices: [
+      { choiceId: "A", label: "何度もLINEを送ってしまった" },
+      { choiceId: "B", label: "『なんで返信してくれないの？』と問い詰めた" },
+      { choiceId: "C", label: "平気を装ったが内心は不安でいっぱい" },
+      { choiceId: "D", label: "忙しいんだろうなと落ち着いて待てた" },
+    ],
+  },
+];
+
+const clampPct = (v: number) => Math.max(0, Math.min(100, Math.round(v)));
+function computeResult(questions: Question[], answers: Answer[]): Result {
+  let anxious = 0, avoidant = 0, fearful = 0, secure = 0;
+  for (const a of answers) {
+    if (a.choiceId === "A") anxious++;
+    if (a.choiceId === "B") avoidant++;
+    if (a.choiceId === "C") fearful++;
+    if (a.choiceId === "D") secure++;
+  }
+  const total = anxious + avoidant + fearful + secure || 1;
+  const stylePct = {
+    anxious: clampPct((anxious / total) * 100),
+    avoidant: clampPct((avoidant / total) * 100),
+    fearful: clampPct((fearful / total) * 100),
+    secure: clampPct((secure / total) * 100),
+  };
+  const dominant = (Object.entries(stylePct).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "anxious") as keyof typeof stylePct;
+  const summaryMap: Record<keyof typeof stylePct, string> = {
+    anxious: "成長中の不安型",
+    avoidant: "距離を取りがちな回避型",
+    fearful: "近づきたいのに怖い恐れ回避型",
+    secure: "安定型の傾向が強め",
+  };
+  return { stylePct, summary: summaryMap[dominant] };
+}
+
+export default function App() {
+  const questions = useMemo(() => QUESTIONS, []);
+  const [idx, setIdx] = useState(0);
+  const [answers, setAnswers] = useState<Answer[]>([]);
+  const finished = idx >= questions.length;
+
+  if (finished) {
+    const result = computeResult(questions, answers);
+    return (
+      <div className="min-h-screen bg-rose-50 p-6">
+        <div className="mx-auto max-w-xl rounded-2xl border border-rose-200 bg-white p-6 shadow-md">
+          <h1 className="mb-4 text-xl font-bold text-rose-700">診断結果</h1>
+          <div className="mb-4 grid grid-cols-2 gap-3 text-sm text-rose-700">
+            <div className="rounded-xl border border-rose-200 bg-white p-4">不安型：{result.stylePct.anxious}%</div>
+            <div className="rounded-xl border border-rose-200 bg-white p-4">回避型：{result.stylePct.avoidant}%</div>
+            <div className="rounded-xl border border-rose-200 bg-white p-4">恐れ回避型：{result.stylePct.fearful}%</div>
+            <div className="rounded-xl border border-rose-200 bg-white p-4">安定型：{result.stylePct.secure}%</div>
+          </div>
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-700">
+            総合判定：{result.summary}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const q = questions[idx];
+  const selected = answers.find(a => a.questionId === q.id)?.choiceId;
+  const setChoice = (choiceId: ChoiceId) => {
+    setAnswers(prev => [...prev.filter(a => a.questionId !== q.id), { questionId: q.id, choiceId }]);
+  };
+
+  return (
+    <div className="min-h-screen bg-rose-50 flex items-center justify-center p-6">
+      <div className="w-full max-w-xl rounded-2xl border border-rose-200 bg-white p-6 shadow-md">
+        <h2 className="mb-4 text-lg font-bold text-rose-700">{q.stem}</h2>
+        <div className="grid grid-cols-1 gap-3">
+          {q.choices.map((c) => (
+            <button
+              key={c.choiceId}
+              onClick={() => setChoice(c.choiceId)}
+              className={`w-full rounded-xl border p-3 text-left text-sm transition ${
+                selected === c.choiceId
+                  ? "border-rose-400 bg-rose-50 text-rose-700"
+                  : "border-rose-200 hover:border-rose-300"
+              }`}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={() => setIdx(idx + 1)}
+            disabled={!selected}
+            className={`rounded-xl px-5 py-2 text-sm text-white ${
+              selected ? "bg-rose-500 hover:bg-rose-600" : "bg-rose-300"
+            }`}
+          >
+            {idx + 1 === questions.length ? "結果を見る" : "次へ"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
