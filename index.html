@@ -1,623 +1,622 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>4段階愛着診断｜第1段階（60問）</title>
-  <style>
-    :root{
-      --rose50:#fff1f2;--rose100:#ffe4e6;--rose200:#fecdd3;--rose300:#fda4af;--rose400:#fb7185;--rose500:#f43f5e;--rose600:#e11d48;
-      --ink:#7f1d1d;--text:#7a1b2f;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,Arial,Roboto,Segoe UI,sans-serif;background:linear-gradient(#fff7f8,#fff);color:#111}
-    .wrap{max-width:860px;margin:0 auto;padding:24px}
-    .h1{font-weight:800;font-size:clamp(22px,5vw,36px);color:#c81e5b;text-align:center;letter-spacing:.02em;margin:6px 0 18px}
-    .sub{color:#9f1239;text-align:center;font-size:13px;margin:0 0 20px}
-    .card{background:#fff;border:1px solid var(--rose200);box-shadow:0 1px 6px rgba(244,63,94,.08);border-radius:16px;padding:14px 14px 18px;margin-bottom:14px}
-    .row{display:flex;gap:12px;align-items:center;justify-content:space-between}
-    .meter{height:9px;background:var(--rose100);border-radius:999px;overflow:hidden}
-    .bar{height:100%;background:linear-gradient(90deg,var(--rose400),var(--rose500));width:0}
-    .muted{color:#7f1d1d;font-size:12px}
-    .q-title{font-weight:800;line-height:1.6;color:#be123c;font-size:clamp(18px,3.6vw,24px);margin:4px 0 6px}
-    .q-scope{color:#9f1239;font-weight:700;margin:6px 0 8px}
-    .choice{border:1px solid var(--rose200);border-radius:14px;padding:15px 14px;font-size:16px;color:#0f172a;background:#fff;text-align:left;cursor:pointer}
-    .choice:hover{border-color:var(--rose300)}
-    .choice.selected{border-color:var(--rose400);background:var(--rose50);box-shadow:0 0 0 3px rgba(244,63,94,.08)}
-    .nav{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
-    .btn{border:none;border-radius:14px;padding:11px 18px;font-weight:700;cursor:pointer}
-    .btn-ghost{background:#fff;border:1px solid var(--rose200);color:#7f1d1d}
-    .btn-ghost:hover{border-color:var(--rose300)}
-    .btn-primary{background:var(--rose500);color:#fff}
-    .btn-primary[disabled]{background:var(--rose300);cursor:not-allowed}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    @media (max-width:640px){.grid2{grid-template-columns:1fr}}
-    .pill{background:#fff;border:1px solid var(--rose200);border-radius:999px;padding:6px 10px;color:#9f1239;font-size:12px}
-    .result{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    @media (max-width:640px){.result{grid-template-columns:1fr}}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>4段階愛着診断</title>
+<!-- Chart.js for Radar -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --rose50:#fff1f2; --rose100:#ffe4e6; --rose200:#fecdd3; --rose300:#fda4af;
+    --rose400:#fb7185; --rose500:#f43f5e; --rose600:#e11d48;
+    --ink:#334155; --muted:#64748b;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,Arial,sans-serif;
+    color:var(--ink);
+    background:
+      linear-gradient(#fff,#fff) 0 0/100% 88px no-repeat,
+      repeating-linear-gradient(180deg,#fff5f6 0 64px,#fff 64px 128px);
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:20px 16px 64px}
+  h1{margin:6px 0 8px; text-align:center; font-weight:900; color:#be123c; font-size:clamp(22px,4.6vw,34px)}
+  .sub{color:var(--muted); text-align:center; font-size:12px; margin-bottom:10px}
+  .card{background:#fff;border:1px solid var(--rose200);border-radius:18px;padding:16px;box-shadow:0 1px 8px rgba(244,63,94,.08)}
+  .row{display:flex;gap:12px;align-items:center;justify-content:space-between}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media (max-width:640px){.grid2{grid-template-columns:1fr}}
+  .qtitle{font-weight:800;color:#be123c;font-size:clamp(18px,3.8vw,24px);line-height:1.6;margin:6px 2px 10px}
+  .stage{font-weight:700;color:#e11d48;font-size:14px;margin-bottom:6px}
+  .choice{border:1px solid var(--rose200);border-radius:14px;padding:14px;text-align:left;background:#fff;cursor:pointer}
+  .choice:hover{border-color:var(--rose300)}
+  .choice.selected{border-color:var(--rose400);background:var(--rose50)}
+  .btn{border:none;border-radius:12px;padding:11px 16px;font-weight:700;cursor:pointer}
+  .btn-primary{background:var(--rose500);color:#fff}
+  .btn-primary[disabled]{background:#fecaca;cursor:not-allowed}
+  .btn-ghost{background:#fff;color:#e11d48;border:1px solid var(--rose200)}
+  .muted{color:var(--muted); font-size:12px}
+  .progress{margin:0 0 12px}
+  .progress .row{margin-bottom:6px}
+  .meter{height:10px;background:var(--rose100);border-radius:999px;overflow:hidden}
+  .meter>i{display:block;height:100%;width:0;background:var(--rose400);transition:width .2s}
+  .intro h2{margin:4px 0 8px; color:#be123c}
+  .intro p{color:#6b7280; line-height:1.9; margin:6px 0}
+  .pill{display:inline-block;border:1px solid var(--rose200);border-radius:999px;padding:6px 10px;font-size:12px;color:#be123c;background:#fff}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <h1 class="h1">4段階愛着診断</h1>
-    <div id="app"></div>
+<div class="wrap">
+  <h1>4段階愛着診断</h1>
+  <div id="progress" class="card progress">
+    <div class="row">
+      <div class="muted">進捗</div>
+      <div id="counter" class="muted">0/0 (0%)</div>
+    </div>
+    <div class="meter"><i id="bar"></i></div>
   </div>
 
+  <div id="screen" class="card"></div>
+</div>
+
 <script>
-/*********************** 第1段階：設問60（各設問ごとに現実的な選択肢） ************************/
-// choice.type の意味: A=不安(anxious) / B=回避(avoidant) / C=恐れ回避(fearful) / D=安定(secure)
-const S1_UNEASY_20 = [
-  { stem: "過去の恋愛で、好きな人から返信が遅れたとき、どうしていましたか？",
-    choices: [
-      {type:'A',label:'不安が強まり、相手の反応ばかり気になった'},
-      {type:'B',label:'期待して傷つかないように距離を取った'},
-      {type:'C',label:'近づきたいのに怖くて動けなかった'},
-      {type:'D',label:'状況を受け止めて落ち着いて待てた'},
-    ]},
-  { stem: "相手がSNSを更新しているのに自分への返信がなかったとき、どう反応していましたか？",
-    choices: [
-      {type:'A',label:'『私だけ無視？』と不安が溢れてスマホを見続けた'},
-      {type:'B',label:'あえて未読のままにして距離を置いた'},
-      {type:'C',label:'平気なふりをして我慢したが、心の中はざわついた'},
-      {type:'D',label:'たまたまだと捉えて気持ちを切り替えた'},
-    ]},
-  { stem: "デート中に相手がスマホをよく見ていたときのあなたの行動は？",
-    choices: [
-      {type:'A',label:'飽きられたかもと不安になり雰囲気が暗くなった'},
-      {type:'B',label:'自分もスマホを見て関心がない態度を取った'},
-      {type:'C',label:'笑顔でやり過ごしたが内心は傷ついた'},
-      {type:'D',label:'仕事や急用かもと受け止め声をかけた'},
-    ]},
-  { stem: "相手が『今日は疲れてる』とそっけなかったとき、どうしていましたか？",
-    choices: [
-      {type:'A',label:'嫌われたかもと不安が爆発して理由を求めた'},
-      {type:'B',label:'同じ温度に合わせて距離を作った'},
-      {type:'C',label:'平気なふりで場を保ちつつ心は孤独だった'},
-      {type:'D',label:'ゆっくり休もうと提案し落ち着けた'},
-    ]},
-  { stem: "相手が予定を優先して会えなかったとき、あなたは？",
-    choices: [
-      {type:'A',label:'『私より大事？』と拗ねたり不安をぶつけた'},
-      {type:'B',label:'『じゃあ私も自由にする』と突き放した'},
-      {type:'C',label:'表面は大丈夫と言いながら落ち込んだ'},
-      {type:'D',label:'次の予定を相談して前向きに切り替えた'},
-    ]},
-  { stem: "相手が他の異性と楽しそうに話しているのを見たとき、どうしていましたか？",
-    choices: [
-      {type:'A',label:'取られるかもと焦り、態度や表情に出た'},
-      {type:'B',label:'自分も他の人と話して距離を取った'},
-      {type:'C',label:'平気なふりで黙ったままモヤモヤを抱えた'},
-      {type:'D',label:'関係を信頼し落ち着いていられた'},
-    ]},
-  { stem: "返信が短文・そっけないと感じたときの反応は？",
-    choices: [
-      {type:'A',label:'嫌われたかもと確かめようと質問攻めになる'},
-      {type:'B',label:'自分も短文で返して温度を下げた'},
-      {type:'C',label:'明るく返しつつ心は沈んだ'},
-      {type:'D',label:'疲れているだけかもと受け流した'},
-    ]},
-  { stem: "相手が趣味や仕事を優先して自分が後回しだと感じたとき、あなたは？",
-    choices: [
-      {type:'A',label:'『大切じゃないのかな』と不安で責めたくなった'},
-      {type:'B',label:'近づきすぎないよう意図的に距離を取った'},
-      {type:'C',label:'応援するふりをして胸の内では寂しさが募った'},
-      {type:'D',label:'相手の大切さを認めつつ自分の時間を過ごした'},
-    ]},
-  { stem: "自分の気持ちを軽く流されたと感じたとき、どうしていましたか？",
-    choices: [
-      {type:'A',label:'理解されたい気持ちが強まり食い下がった'},
-      {type:'B',label:'それ以上踏み込まず話題を終わらせた'},
-      {type:'C',label:'笑ってごまかしながら心に刺さったままにした'},
-      {type:'D',label:'タイミングを改めて落ち着いて伝え直した'},
-    ]},
-  { stem: "相手に『一人の時間が欲しい』と言われたときのあなたの反応は？",
-    choices: [
-      {type:'A',label:'嫌われた不安で連絡や確認が増えた'},
-      {type:'B',label:'『じゃあ私も』と距離を広げた'},
-      {type:'C',label:'『わかった』と受け入れつつ内心は寂しかった'},
-      {type:'D',label:'必要な時間だと理解し任せられた'},
-    ]},
-  { stem: "相手が友人の予定を優先したとき、あなたは？",
-    choices: [
-      {type:'A',label:'拗ねたり試すようなLINEを送った'},
-      {type:'B',label:'自分も別の予定を入れて距離を置いた'},
-      {type:'C',label:'『大丈夫』と言いつつ心では落ち込んだ'},
-      {type:'D',label:'友人関係も大切と理解し自分の時間を楽しんだ'},
-    ]},
-  { stem: "誕生日や記念日を忘れられたとき、どうしていましたか？",
-    choices: [
-      {type:'A',label:'大切にされていないと感じ感情的になった'},
-      {type:'B',label:'『もういい』と冷めた態度を取った'},
-      {type:'C',label:'平気を装ったが傷つきが残った'},
-      {type:'D',label:'事情を聞きつつ次の機会を一緒に考えられた'},
-    ]},
-  { stem: "急に連絡が減ったときのあなたの行動は？",
-    choices: [
-      {type:'A',label:'不安で追いLINEや電話をしてしまった'},
-      {type:'B',label:'こちらも連絡頻度を下げた'},
-      {type:'C',label:'何も言えず様子見のまま苦しくなった'},
-      {type:'D',label:'事情の可能性を考え落ち着いて確認した'},
-    ]},
-  { stem: "相手の態度が冷たくなったと感じたとき、どう動きましたか？",
-    choices: [
-      {type:'A',label:'理由を何度も聞き確かめた'},
-      {type:'B',label:'『もう無理』と突き放す方向へ動いた'},
-      {type:'C',label:'普通に振る舞いながら心は乱れていた'},
-      {type:'D',label:'落ち着いて対話のタイミングを作った'},
-    ]},
-  { stem: "自分の不安を『考えすぎ』と言われたときの反応は？",
-    choices: [
-      {type:'A',label:'さらに不安になり納得するまで説明を求めた'},
-      {type:'B',label:'感情を閉じて話題を打ち切った'},
-      {type:'C',label:'『平気』と笑いながら傷つきを抱えた'},
-      {type:'D',label:'そうかもと一度整えてから改めて伝えた'},
-    ]},
-  { stem: "未読・既読スルーが続いたとき、あなたは？",
-    choices: [
-      {type:'A',label:'連投や電話で反応を取りにいった'},
-      {type:'B',label:'自分も未読のまま距離を置いた'},
-      {type:'C',label:'反応を待つだけで気力が落ちた'},
-      {type:'D',label:'忙しさを考慮し期限を決めて確認した'},
-    ]},
-  { stem: "元恋人の話題が出たとき、どう感じ・どう振る舞いましたか？",
-    choices: [
-      {type:'A',label:'『まだ好き？』と問い詰めたくなった'},
-      {type:'B',label:'不機嫌になり距離を作った'},
-      {type:'C',label:'平気を装ったが内心はざわついた'},
-      {type:'D',label:'過去の話として落ち着いて聞けた'},
-    ]},
-  { stem: "自分が体調不良のとき相手があまり心配してくれなかったら？",
-    choices: [
-      {type:'A',label:'大切にされていないと感じ感情が溢れた'},
-      {type:'B',label:'期待しない姿勢で距離を置いた'},
-      {type:'C',label:'笑って我慢しつつ寂しさを抱えた'},
-      {type:'D',label:'事情を推測しつつ必要を端的に伝えられた'},
-    ]},
-  { stem: "気持ちを素直に伝えたのに軽く流されたとき、あなたは？",
-    choices: [
-      {type:'A',label:'『やっぱりだめ』と不安が強まり確認したくなった'},
-      {type:'B',label:'『もういい』と心のシャッターを下ろした'},
-      {type:'C',label:'表面は笑い内側では落ち込んだ'},
-      {type:'D',label:'タイミングを見直して言い直した'},
-    ]},
-  { stem: "『本当に愛されてる？』と不安になったときの行動は？",
-    choices: [
-      {type:'A',label:'確かめたくて何度も聞いた／試した'},
-      {type:'B',label:'平気を装ってむしろ距離を置いた'},
-      {type:'C',label:'言えないままモヤモヤを抱えた'},
-      {type:'D',label:'信頼に戻る工夫で気持ちを整えた'},
-    ]},
+/* ============================================================
+   質問データ構造
+   - type: "intro" | "q"
+   - For Stage1: 選択肢ごとに aff="A|B|C|D"（A=不安/B=回避/C=恐れ回避/D=安定）
+   - For Stage2: A=0, B=1, C=2, D=3（成長スコア）
+   - For Stage3: A=0, B=1, C=2, D=3（安定スコア）
+   - For Stage4: 10テーマ×A(普段)/B(恋愛中)。各問は role:"A" or "B", pairId 同一でペアに。
+     選択肢は A..D を 0..3 スコアにマップし、B - A のギャップを評価（恋愛中で悪化=隠れリスク）
+============================================================ */
+
+/* ====== 第1段階（S1）——いまはサンプル3問。★ここを前回の「60問版」に置き換えてください！ ====== */
+const S1 = [
+  {stage:1,type:"q",stem:"過去の恋愛で、好きな人から返信が遅れたとき、どうしていましたか？",
+   choices:[
+     {id:"A",label:"不安が強まり、相手の反応ばかり気になった", aff:"A"},
+     {id:"B",label:"期待して傷つかないように距離を取った", aff:"B"},
+     {id:"C",label:"近づきたいのに怖くて動けなかった", aff:"C"},
+     {id:"D",label:"状況を受け止めて落ち着いて待てた", aff:"D"},
+   ]},
+  {stage:1,type:"q",stem:"恋人とケンカになったとき、最も多い行動は？",
+   choices:[
+     {id:"A",label:"感情的にぶつかってしまった", aff:"A"},
+     {id:"B",label:"無視/連絡を減らして距離を取った", aff:"B"},
+     {id:"C",label:"何も言えず我慢してしまった", aff:"C"},
+     {id:"D",label:"タイミングを見て冷静に話し合った", aff:"D"},
+   ]},
+  {stage:1,type:"q",stem:"相手が『一人の時間が欲しい』と言ったとき、あなたは？",
+   choices:[
+     {id:"A",label:"嫌われた不安で確認連絡が増えた", aff:"A"},
+     {id:"B",label:"『じゃあ私も』と距離を広げた", aff:"B"},
+     {id:"C",label:"表面は受け入れたが内心は寂しかった", aff:"C"},
+     {id:"D",label:"必要な時間だと理解し任せられた", aff:"D"},
+   ]},
 ];
 
-const S1_AVOIDANT_20 = [
-  { stem:"相手が自分の予定に干渉してきたとき、どうしがちでしたか？",
-    choices:[
-      {type:'A',label:'不安で予定を細かく共有して安心を求めた'},
-      {type:'B',label:'干渉を嫌い距離を取る/話題を切る'},
-      {type:'C',label:'近づきたいが拒否が怖く黙って合わせた'},
-      {type:'D',label:'必要な境界を伝えつつ予定を調整した'},
-    ]},
-  { stem:"頻繁な連絡を求められたときの反応は？",
-    choices:[
-      {type:'A',label:'即返信で相手の安心を優先した'},
-      {type:'B',label:'束縛に感じ返信を遅らせた/既読にしない'},
-      {type:'C',label:'負担だが断れず無理をした'},
-      {type:'D',label:'頻度の希望を確認し合いルールを決めた'},
-    ]},
-  { stem:"『気持ちを言葉で伝えて』と求められたときの行動は？",
-    choices:[
-      {type:'A',label:'不安回避のために過剰に言葉で埋めた'},
-      {type:'B',label:'面倒になり話を切り上げる/黙る'},
-      {type:'C',label:'言いたいが怖くて曖昧にした'},
-      {type:'D',label:'表現が苦手と伝えつつ伝えられる形を探した'},
-    ]},
-  { stem:"一緒の時間を増やしたいと言われたとき、あなたは？",
-    choices:[
-      {type:'A',label:'不安で全部合わせようとした'},
-      {type:'B',label:'自由を守るために拒みがちになった'},
-      {type:'C',label:'気持ちはあるが衝突が怖く沈黙した'},
-      {type:'D',label:'自分の時間と相手の希望の折衷案を出した'},
-    ]},
-  { stem:"将来の具体的な話（同棲・結婚等）が出たときの反応は？",
-    choices:[
-      {type:'A',label:'不安で早く確約を取りたくなった'},
-      {type:'B',label:'重く感じて話題を変える/先延ばしにする'},
-      {type:'C',label:'嬉しいが不安で受け止めきれない'},
-      {type:'D',label:'嬉しい/不安の両方を言語化し検討を進めた'},
-    ]},
-  { stem:"過去の行動を問い詰められたとき、あなたは？",
-    choices:[
-      {type:'A',label:'不安で弁明を重ね相手の納得を取りに行く'},
-      {type:'B',label:'責められ感が強くシャットアウトした'},
-      {type:'C',label:'反論したいが怖くて黙る'},
-      {type:'D',label:'事実ベースで説明し感情面も確認した'},
-    ]},
-  { stem:"相手が嫉妬深い態度を見せたときのあなたの反応は？",
-    choices:[
-      {type:'A',label:'安心させようと行動を制限した'},
-      {type:'B',label:'干渉に感じ距離を広げた'},
-      {type:'C',label:'困るが何も言えず我慢した'},
-      {type:'D',label:'境界と安心の両方を話し合った'},
-    ]},
-  { stem:"『会いたい』の頻度が多いと感じたとき、あなたは？",
-    choices:[
-      {type:'A',label:'求めに応じて自分を後回しにした'},
-      {type:'B',label:'頻度を下げるため連絡を減らした'},
-      {type:'C',label:'断れず予定を詰めて疲弊した'},
-      {type:'D',label:'頻度の希望をすり合わせた'},
-    ]},
-  { stem:"感情表現を求められたとき、どう振る舞っていましたか？",
-    choices:[
-      {type:'A',label:'相手の不安を受け止めるため過剰に表現した'},
-      {type:'B',label:'恥ずかしさ/煩わしさから避けた'},
-      {type:'C',label:'表現したいが怖く曖昧にした'},
-      {type:'D',label:'できる表現と苦手を共有して工夫した'},
-    ]},
-  { stem:"相手が泣きながらすがってきた場面、あなたは？",
-    choices:[
-      {type:'A',label:'一緒に不安になり過度に支えようとした'},
-      {type:'B',label:'重さに耐えられず離れたくなった'},
-      {type:'C',label:'戸惑って固まり動けなくなった'},
-      {type:'D',label:'まず落ち着かせ境界とケアを両立した'},
-    ]},
-  { stem:"『どう思ってるの？』を繰り返し聞かれたときの反応は？",
-    choices:[
-      {type:'A',label:'不安を鎮めるため即時に言葉を盛った'},
-      {type:'B',label:'面倒になり返答を先延ばしにした'},
-      {type:'C',label:'正直に言いたいが不安で曖昧にした'},
-      {type:'D',label:'感じている範囲を率直に伝えた'},
-    ]},
-  { stem:"プライベートを深く知りたがられたとき、あなたは？",
-    choices:[
-      {type:'A',label:'安心させるため過剰に共有した'},
-      {type:'B',label:'踏み込まれた感覚で話題を逸らした'},
-      {type:'C',label:'嫌と言えず曖昧に答えた'},
-      {type:'D',label:'共有できる範囲と線引きを説明した'},
-    ]},
-  { stem:"相手の依存を感じたときの対応は？",
-    choices:[
-      {type:'A',label:'離れられない不安から過剰に支えた'},
-      {type:'B',label:'一気に距離を取ってしまった'},
-      {type:'C',label:'受け止めたいが怖くて固まった'},
-      {type:'D',label:'サポートと自立のバランスを相談した'},
-    ]},
-  { stem:"同棲の提案をされたとき、どう反応していましたか？",
-    choices:[
-      {type:'A',label:'不安から即答でOKし確約を得たくなる'},
-      {type:'B',label:'自由を失う不安で話を閉ざした'},
-      {type:'C',label:'嬉しいが怖さが勝ち曖昧にした'},
-      {type:'D',label:'条件やタイミングを現実的に検討した'},
-    ]},
-  { stem:"SNSで関係をアピールされたときの気持ち/行動は？",
-    choices:[
-      {type:'A',label:'安心して合わせて多く投稿した'},
-      {type:'B',label:'公開を好まず距離を置いた'},
-      {type:'C',label:'嫌だが断れず流された'},
-      {type:'D',label:'互いの心地よい範囲を話し合った'},
-    ]},
-  { stem:"急に距離を縮めようとされたとき、あなたは？",
-    choices:[
-      {type:'A',label:'不安で一気に距離を詰めてしまう'},
-      {type:'B',label:'反射的に離れる／返信を遅らせる'},
-      {type:'C',label:'嬉しいが怖くて固まる'},
-      {type:'D',label:'自分のペースを伝えつつ進めた'},
-    ]},
-  { stem:"ケンカ後すぐ仲直りしたいと言われたときの反応は？",
-    choices:[
-      {type:'A',label:'不安で即座に謝り関係を戻そうとした'},
-      {type:'B',label:'感情が落ち着くまで距離を取りたくなる'},
-      {type:'C',label:'仲直りしたいが怖くて沈黙した'},
-      {type:'D',label:'冷却時間を決めて建設的に話した'},
-    ]},
-  { stem:"電話が頻繁に来る関係でのあなたのパターンは？",
-    choices:[
-      {type:'A',label:'相手最優先で常に対応しがち'},
-      {type:'B',label:'負担に感じ着信を避けがち'},
-      {type:'C',label:'断れず疲弊する'},
-      {type:'D',label:'時間帯や頻度の合意を作る'},
-    ]},
-  { stem:"『今どこ？何してる？』と細かく聞かれるとき、どうしていましたか？",
-    choices:[
-      {type:'A',label:'安心させようと全部共有した'},
-      {type:'B',label:'監視に感じ情報を出さない'},
-      {type:'C',label:'嫌と言えず曖昧に返した'},
-      {type:'D',label:'共有範囲を話し合い納得ラインを決めた'},
-    ]},
-  { stem:"真剣な愛情表現を受けたときの内心と行動は？",
-    choices:[
-      {type:'A',label:'不安で確認を重ね依存的になる'},
-      {type:'B',label:'重く感じて一歩引く'},
-      {type:'C',label:'嬉しいが怖くて固まる'},
-      {type:'D',label:'嬉しさと境界を両立して受け取る'},
-    ]},
+/* ====== 第2段階（S2 20問）A:変化なし→D:ほぼ安定 ====== */
+const S2_INTRO = {type:"intro",stage:2,title:"第2段階：成長・改善度",
+  body:[
+    "ここでは「昔の自分」と「今の自分」を比べます。",
+    "Aは変化が少なく、Dに近いほど改善・自立が進んでいるイメージ。",
+    "落ち着いて、正直に選んでください。"
+  ]};
+
+const S2 = [
+  {id:"s2-01",stage:2,type:"q",stem:"愛着を意識する前と比べて、不安を感じる頻度は？",
+    choices:[{id:"A",label:"ほとんど変わらない"},{id:"B",label:"少し減った"},{id:"C",label:"かなり減った"},{id:"D",label:"めったに不安にならない"}]},
+  {id:"s2-02",stage:2,type:"q",stem:"昔と比べて、相手を信じられる度合いは？",
+    choices:[{id:"A",label:"ほぼ変化なし"},{id:"B",label:"少し信じられる"},{id:"C",label:"かなり信じられる"},{id:"D",label:"基本的に信頼できている"}]},
+  {id:"s2-03",stage:2,type:"q",stem:"不安になったとき、落ち着くまでの時間は？",
+    choices:[{id:"A",label:"以前と同じ／長引く"},{id:"B",label:"少し短く"},{id:"C",label:"かなり短く"},{id:"D",label:"すぐ整えられる"}]},
+  {id:"s2-04",stage:2,type:"q",stem:"相手に素直に気持ちを伝えられるようになりましたか？",
+    choices:[{id:"A",label:"ほぼ変化なし"},{id:"B",label:"少し言える"},{id:"C",label:"かなり言える"},{id:"D",label:"落ち着いて率直に伝えられる"}]},
+  {id:"s2-05",stage:2,type:"q",stem:"依存的な行動（追撃LINEなど）は減りましたか？",
+    choices:[{id:"A",label:"今もよくある"},{id:"B",label:"少し減った"},{id:"C",label:"かなり減った"},{id:"D",label:"ほぼ無い"}]},
+  {id:"s2-06",stage:2,type:"q",stem:"好きな人から3日連絡がなかったら、今のあなたは？",
+    choices:[{id:"A",label:"連投してしまう"},{id:"B",label:"抑えられることもある"},{id:"C",label:"自分を整えて待てる"},{id:"D",label:"状況を捉え直し落ち着いて待てる"}]},
+  {id:"s2-07",stage:2,type:"q",stem:"『一人の時間が欲しい』と言われたら？",
+    choices:[{id:"A",label:"不安で詰める"},{id:"B",label:"一旦受け止められる"},{id:"C",label:"意図を確かめ落ち着ける"},{id:"D",label:"自然に尊重できる"}]},
+  {id:"s2-08",stage:2,type:"q",stem:"ケンカしたとき、今のあなたは？",
+    choices:[{id:"A",label:"感情的/無視に走る"},{id:"B",label:"一呼吸置ける"},{id:"C",label:"落ち着いて話し合いに戻せる"},{id:"D",label:"合意形成まで運べる"}]},
+  {id:"s2-09",stage:2,type:"q",stem:"相手が他の異性と仲良くしているのを見たら？",
+    choices:[{id:"A",label:"詰める/距離を取る"},{id:"B",label:"不安だがその場は流せる"},{id:"C",label:"後で冷静に共有できる"},{id:"D",label:"信頼を前提に対話できる"}]},
+  {id:"s2-10",stage:2,type:"q",stem:"不安が出ても自分で落ち着ける方法は？",
+    choices:[{id:"A",label:"ほとんど無い"},{id:"B",label:"あるが時々崩れる"},{id:"C",label:"十分ある"},{id:"D",label:"確立して再現性が高い"}]},
+  {id:"s2-11",stage:2,type:"q",stem:"誰にも相談できないときでも、冷静さを保てる自信は？",
+    choices:[{id:"A",label:"自信がない"},{id:"B",label:"状況次第"},{id:"C",label:"ほぼ保てる"},{id:"D",label:"十分に保てる"}]},
+  {id:"s2-12",stage:2,type:"q",stem:"恋愛以外（仕事・趣味）を大切にできていますか？",
+    choices:[{id:"A",label:"できていない"},{id:"B",label:"少し意識"},{id:"C",label:"概ねできている"},{id:"D",label:"安定してできている"}]},
+  {id:"s2-13",stage:2,type:"q",stem:"相手がいなくても『自分には価値がある』と思える？",
+    choices:[{id:"A",label:"あまり思えない"},{id:"B",label:"時々思える"},{id:"C",label:"だいたい思える"},{id:"D",label:"しっかり思えている"}]},
+  {id:"s2-14",stage:2,type:"q",stem:"恋愛がなくても、生活や気持ちは安定している？",
+    choices:[{id:"A",label:"不安定になりがち"},{id:"B",label:"やや不安定"},{id:"C",label:"おおむね安定"},{id:"D",label:"安定している"}]},
+  {id:"s2-15",stage:2,type:"q",stem:"『恋愛がなくても幸せ』と思える？",
+    choices:[{id:"A",label:"ほぼ無い"},{id:"B",label:"時々ある"},{id:"C",label:"よくある"},{id:"D",label:"自然に感じられる"}]},
+  {id:"s2-16",stage:2,type:"q",stem:"頭では『大丈夫』でも心は不安、が起きる？",
+    choices:[{id:"A",label:"よくある"},{id:"B",label:"時々ある"},{id:"C",label:"まれにある"},{id:"D",label:"ほとんど無い"}]},
+  {id:"s2-17",stage:2,type:"q",stem:"知識では理解していても不安がぶり返す？",
+    choices:[{id:"A",label:"よくぶり返す"},{id:"B",label:"時々ぶり返す"},{id:"C",label:"たまにある"},{id:"D",label:"ほぼ無い"}]},
+  {id:"s2-18",stage:2,type:"q",stem:"『冷静でいよう』と思っても同じ行動を繰り返す？",
+    choices:[{id:"A",label:"よく繰り返す"},{id:"B",label:"時々ある"},{id:"C",label:"かなり減った"},{id:"D",label:"ほぼ無い"}]},
+  {id:"s2-19",stage:2,type:"q",stem:"うまくいかないとき、自分を責めてしまう？",
+    choices:[{id:"A",label:"よく責める"},{id:"B",label:"時々責める"},{id:"C",label:"たまにある"},{id:"D",label:"ほとんど無い"}]},
+  {id:"s2-20",stage:2,type:"q",stem:"『成長したはずなのに恋愛で揺らぐ』と感じる？",
+    choices:[{id:"A",label:"よく感じる"},{id:"B",label:"時々感じる"},{id:"C",label:"まれに感じる"},{id:"D",label:"ほとんど感じない"}]},
 ];
 
-const S1_FEARFUL_20 = [
-  { stem:"相手に愛情を求めたいのに怖くて言えなかった場面、あなたは？",
-    choices:[
-      {type:'A',label:'不安で遠回しに確認を取りにいった'},
-      {type:'B',label:'求められる前に距離を取った'},
-      {type:'C',label:'言いたいのに飲み込み黙った'},
-      {type:'D',label:'タイミングを選んで率直に伝えた'},
-    ]},
-  { stem:"相手の優しさを疑ってしまったとき、どう対応していましたか？",
-    choices:[
-      {type:'A',label:'離れられる不安で依存的に確かめ続けた'},
-      {type:'B',label:'裏があると感じ距離を置いた'},
-      {type:'C',label:'信じたいが怖くて受け取りきれない'},
-      {type:'D',label:'疑いの背景を言語化し共有した'},
-    ]},
-  { stem:"『近づきたいけど拒絶が怖い』と感じたときの行動は？",
-    choices:[
-      {type:'A',label:'不安を埋めたくて相手を試した'},
-      {type:'B',label:'拒絶を避けるため先に離れた'},
-      {type:'C',label:'動けず沈黙し関係が停滞した'},
-      {type:'D',label:'怖さを共有し安全な近づき方を提案した'},
-    ]},
-  { stem:"他の異性と仲良くする相手を見て、問い詰めたいが言えなかった場面での行動は？",
-    choices:[
-      {type:'A',label:'確認連絡を重ねてしまう'},
-      {type:'B',label:'何も言わず距離を取り消える'},
-      {type:'C',label:'笑ってやり過ごすが内心は不安定'},
-      {type:'D',label:'気持ちを落ち着け事実確認と感情共有をした'},
-    ]},
-  { stem:"本音を伝えたいのに『嫌われそう』と感じたとき、あなたは？",
-    choices:[
-      {type:'A',label:'安心を得るため回りくどく探った'},
-      {type:'B',label:'拒絶前提で引いてしまった'},
-      {type:'C',label:'言えずに抱え込み苦しくなった'},
-      {type:'D',label:'怖さも含めて正直に短く伝えた'},
-    ]},
-  { stem:"助けてほしいのに素直に頼めなかったときの行動は？",
-    choices:[
-      {type:'A',label:'察してほしくてサインを出した'},
-      {type:'B',label:'迷惑を避けるため距離を取った'},
-      {type:'C',label:'我慢して一人で抱え込んだ'},
-      {type:'D',label:'具体的に依頼しお礼も伝えた'},
-    ]},
-  { stem:"甘えたい気持ちと『迷惑かも』が同時に出たとき、あなたは？",
-    choices:[
-      {type:'A',label:'不安で反応を試すようなLINEを送った'},
-      {type:'B',label:'関係を守るため自分から引いた'},
-      {type:'C',label:'甘えたいのに固まってしまう'},
-      {type:'D',label:'甘え方の範囲を相談して頼った'},
-    ]},
-  { stem:"相手が冷たいとき、傷つきながらも黙って距離を取った経験は？",
-    choices:[
-      {type:'A',label:'追いかけ確認してしまう'},
-      {type:'B',label:'完全に引いて連絡を断つ'},
-      {type:'C',label:'黙って距離を取り続ける'},
-      {type:'D',label:'気持ちを伝えた上で時間を置く'},
-    ]},
-  { stem:"褒められても『本当かな？』と疑ったときのあなたの行動は？",
-    choices:[
-      {type:'A',label:'確かめるために追加の言葉を求めた'},
-      {type:'B',label:'照れ隠しに話題を変えた/否定した'},
-      {type:'C',label:'受け取りたいのに曖昧にした'},
-      {type:'D',label:'ありがとうと受け取り違和感も観察した'},
-    ]},
-  { stem:"大事にされるほど『失うのが怖い』と感じたとき、どうしていましたか？",
-    choices:[
-      {type:'A',label:'確約を求めすぎてしまう'},
-      {type:'B',label:'先に去って傷を小さくしようとする'},
-      {type:'C',label:'動けず依存と回避を行き来する'},
-      {type:'D',label:'怖さを共有し関係の安定策を話した'},
-    ]},
-  { stem:"怒りを感じてもぶつけられず我慢したときの代わりの行動は？",
-    choices:[
-      {type:'A',label:'遠回しに察してほしいサインを出す'},
-      {type:'B',label:'連絡を減らし距離で示す'},
-      {type:'C',label:'沈黙して溜め込む'},
-      {type:'D',label:'時間を置き言葉で丁寧に伝える'},
-    ]},
-  { stem:"近づくほど『どうせ捨てられる』が浮かんだときの選択は？",
-    choices:[
-      {type:'A',label:'確認行動が増える'},
-      {type:'B',label:'先に引いて関係を軽くする'},
-      {type:'C',label:'気持ちを抑え込み関係が停滞する'},
-      {type:'D',label:'不安を共有し安心の積み上げを相談する'},
-    ]},
-  { stem:"相談したいのに『迷惑になる』と感じた場面、あなたは？",
-    choices:[
-      {type:'A',label:'様子を探る連絡で間接的に求めた'},
-      {type:'B',label:'連絡を控え一人で処理した'},
-      {type:'C',label:'我慢して抱え込み続けた'},
-      {type:'D',label:'時間の合うタイミングで依頼した'},
-    ]},
-  { stem:"相手が謝っても『また繰り返す』と思い受け取れないとき、あなたは？",
-    choices:[
-      {type:'A',label:'保証を求める確認が増える'},
-      {type:'B',label:'信用しない態度で距離を置く'},
-      {type:'C',label:'表面上受け取り内心は固まる'},
-      {type:'D',label:'再発防止の具体を一緒に決めた'},
-    ]},
-  { stem:"楽しい時間でも『終わりが来る』と不安になるときの対処は？",
-    choices:[
-      {type:'A',label:'確約を取りにいく'},
-      {type:'B',label:'期待値を下げるため距離を置く'},
-      {type:'C',label:'楽しめず黙り込む'},
-      {type:'D',label:'今を味わい不安は後で整える'},
-    ]},
-  { stem:"弱さを見せられなかった場面、あなたの選びがちだった行動は？",
-    choices:[
-      {type:'A',label:'強がって大丈夫アピールをする'},
-      {type:'B',label:'会う頻度や連絡を減らす'},
-      {type:'C',label:'本音を隠し役割を演じる'},
-      {type:'D',label:'見せたい範囲から小さく共有した'},
-    ]},
-  { stem:"愛情を受け取りたいのに『信じられない』感覚が出たときの対応は？",
-    choices:[
-      {type:'A',label:'確認行動で埋めようとする'},
-      {type:'B',label:'受け取らず距離を取る'},
-      {type:'C',label:'黙って受け取れず固まる'},
-      {type:'D',label:'嬉しさと怖さの両方を共有する'},
-    ]},
-  { stem:"求められると『重い』と感じ避けたくなるとき、あなたは？",
-    choices:[
-      {type:'A',label:'合わせすぎて後で爆発する'},
-      {type:'B',label:'先に引いて関係を軽くする'},
-      {type:'C',label:'曖昧にして流す'},
-      {type:'D',label:'対応できる範囲を言葉にする'},
-    ]},
-  { stem:"本気で好きになりかけた瞬間の『怖い』に対して、どうしていましたか？",
-    choices:[
-      {type:'A',label:'確かめるため愛情確認を繰り返す'},
-      {type:'B',label:'距離を取って熱を下げる'},
-      {type:'C',label:'固まって行動できなくなる'},
-      {type:'D',label:'怖さを抱えたまま少しずつ進む'},
-    ]},
-  { stem:"距離を近づけたいのに自分から突き放してしまった場面、あなたは？",
-    choices:[
-      {type:'A',label:'その後に不安で連絡を連投した'},
-      {type:'B',label:'突き放したまま戻れなくなる'},
-      {type:'C',label:'謝れず沈黙が続く'},
-      {type:'D',label:'理由を伝えてから距離を再調整した'},
-    ]},
+/* ====== 第3段階（S3 20問）A:不安定→D:安定 ====== */
+const S3_INTRO = {type:"intro",stage:3,title:"第3段階：改善の安定度",
+  body:[
+    "強いストレス状況や“一人のとき”でも安定できるかを測ります。",
+    "Aは最も不安定、Dは最も安定。素直に今のあなたで選択してください。"
+  ]};
+
+const S3 = [
+  {id:"s3-01",stage:3,type:"q",stem:"好きな人から3日間連絡がなかったら？",
+    choices:[{id:"A",label:"連投/電話してしまう"},{id:"B",label:"落ち込むが一旦待てる"},{id:"C",label:"不安を整え様子を見る"},{id:"D",label:"状況を捉え直し落ち着いて待てる"}]},
+  {id:"s3-02",stage:3,type:"q",stem:"『少し距離を置きたい』と言われたら？",
+    choices:[{id:"A",label:"パニックで詰める/連投"},{id:"B",label:"冷めたフリ/駆け引き"},{id:"C",label:"不安はあるが落ち着ける"},{id:"D",label:"尊重し自分の時間を整えられる"}]},
+  {id:"s3-03",stage:3,type:"q",stem:"相手が元カノ・元カレの話をしたとき？",
+    choices:[{id:"A",label:"問い詰める/当たる"},{id:"B",label:"黙る/距離を取る"},{id:"C",label:"後で落ち着いて共有"},{id:"D",label:"信頼を前提に対話"}]},
+  {id:"s3-04",stage:3,type:"q",stem:"相手が急に冷たい態度になったと感じたら？",
+    choices:[{id:"A",label:"理由確認を連発/感情的"},{id:"B",label:"投げやり/距離を置く"},{id:"C",label:"一呼吸おいて落ち着く"},{id:"D",label:"タイミングを見て冷静に話す"}]},
+  {id:"s3-05",stage:3,type:"q",stem:"不安で眠れなくなることは？",
+    choices:[{id:"A",label:"よくある"},{id:"B",label:"時々ある"},{id:"C",label:"たまにある"},{id:"D",label:"ほとんど無い"}]},
+  {id:"s3-06",stage:3,type:"q",stem:"相談できない状況で不安になったら？",
+    choices:[{id:"A",label:"感情に飲まれ衝動連絡"},{id:"B",label:"我慢して苦しみ続ける"},{id:"C",label:"セルフケアで落ち着ける"},{id:"D",label:"客観視して行動を選べる"}]},
+  {id:"s3-07",stage:3,type:"q",stem:"恋人がいない期間でも気持ちは安定している？",
+    choices:[{id:"A",label:"不安定になりやすい"},{id:"B",label:"やや不安定"},{id:"C",label:"おおむね安定"},{id:"D",label:"安定している"}]},
+  {id:"s3-08",stage:3,type:"q",stem:"誰にも頼れないとき、自分で落ち着ける方法が？",
+    choices:[{id:"A",label:"ほとんど無い"},{id:"B",label:"あるが不安定"},{id:"C",label:"十分ある"},{id:"D",label:"再現性高く使える"}]},
+  {id:"s3-09",stage:3,type:"q",stem:"休日を一人で過ごすと、恋愛のことばかり考える？",
+    choices:[{id:"A",label:"よくある"},{id:"B",label:"時々ある"},{id:"C",label:"たまにある"},{id:"D",label:"ほとんど無い"}]},
+  {id:"s3-10",stage:3,type:"q",stem:"SNSで不安になることは？",
+    choices:[{id:"A",label:"よくある"},{id:"B",label:"時々ある"},{id:"C",label:"たまにある"},{id:"D",label:"ほとんど無い"}]},
+  {id:"s3-11",stage:3,type:"q",stem:"恋愛が始まると、昔の不安パターンに戻る？",
+    choices:[{id:"A",label:"よく戻る"},{id:"B",label:"時々戻る"},{id:"C",label:"まれに戻る"},{id:"D",label:"ほとんど無い"}]},
+  {id:"s3-12",stage:3,type:"q",stem:"相手を疑ってしまう気持ちは？",
+    choices:[{id:"A",label:"強く出やすい"},{id:"B",label:"時々出る"},{id:"C",label:"まれに出る"},{id:"D",label:"ほとんど出ない"}]},
+  {id:"s3-13",stage:3,type:"q",stem:"ケンカのとき感情的になりやすい？",
+    choices:[{id:"A",label:"なりやすい"},{id:"B",label:"時々ある"},{id:"C",label:"あまり無い"},{id:"D",label:"ほぼ無い"}]},
+  {id:"s3-14",stage:3,type:"q",stem:"不安を感じるとき、自分の価値を疑ってしまう？",
+    choices:[{id:"A",label:"よく疑う"},{id:"B",label:"時々疑う"},{id:"C",label:"たまにある"},{id:"D",label:"ほとんど無い"}]},
+  {id:"s3-15",stage:3,type:"q",stem:"『もう大丈夫』と思っても、恋愛中に揺らぐ？",
+    choices:[{id:"A",label:"よく揺らぐ"},{id:"B",label:"時々揺らぐ"},{id:"C",label:"まれに揺らぐ"},{id:"D",label:"ほとんど揺らがない"}]},
+  {id:"s3-16",stage:3,type:"q",stem:"不安をぶつけそうになっても、落ち着けることが増えた？",
+    choices:[{id:"A",label:"あまり増えていない"},{id:"B",label:"少し増えた"},{id:"C",label:"かなり増えた"},{id:"D",label:"安定してできる"}]},
+  {id:"s3-17",stage:3,type:"q",stem:"一度落ち着けば、その後も安定を保ちやすい？",
+    choices:[{id:"A",label:"保てないことが多い"},{id:"B",label:"状況次第"},{id:"C",label:"だいたい保てる"},{id:"D",label:"保てる自信がある"}]},
+  {id:"s3-18",stage:3,type:"q",stem:"不安を感じたとき、以前より冷静に話し合える？",
+    choices:[{id:"A",label:"あまり変化なし"},{id:"B",label:"少しは話せる"},{id:"C",label:"かなり話せる"},{id:"D",label:"落ち着いて話し合える"}]},
+  {id:"s3-19",stage:3,type:"q",stem:"強い嫉妬や不安が出ても、自分で修正できる？",
+    choices:[{id:"A",label:"ほぼできない"},{id:"B",label:"時々できる"},{id:"C",label:"多くはできる"},{id:"D",label:"安定してできる"}]},
+  {id:"s3-20",stage:3,type:"q",stem:"『安定した恋愛を続けられる自信』は？",
+    choices:[{id:"A",label:"あまり無い"},{id:"B",label:"ややある"},{id:"C",label:"かなりある"},{id:"D",label:"十分ある"}]},
 ];
 
-// 60問を結合
-const QUESTIONS = [
-  ...S1_UNEASY_20,
-  ...S1_AVOIDANT_20,
-  ...S1_FEARFUL_20,
+/* ====== 第4段階（S4 20問：10テーマ×A/B） ======
+   - role:"A"=普段（恋愛していない時）、role:"B"=恋愛中
+   - 同じ pairId の A/B を比較。0..3 点（A=0,B=1,C=2,D=3）で「B-A」が大きいほど“恋愛時に悪化”=隠れリスク。
+==================================================== */
+const S4_INTRO = {type:"intro",stage:4,title:"第4段階：隠れタイプ診断（ギャップ測定）",
+  body:[
+    "普段の自分（A）と、恋愛中の自分（B）で“同じテーマ”に答えます。",
+    "Bでスコアが悪化（Aより低い）するほど、恋愛が始まると出やすい隠れリスクが高いと判定します。",
+    "無理に良く見せず、実感に近い方を選んでください。"
+  ]};
+
+const S4 = [
+  // テーマ1：返信遅延
+  {id:"t1-A",pairId:"t1",role:"A",stage:4,type:"q",stem:"【普段】相手の返信が遅いときの心の動きは？",
+    choices:[{id:"D",label:"あまり気にならない"},{id:"C",label:"少し気になるが切り替えられる"},{id:"B",label:"落ち着かない時がある"},{id:"A",label:"不安で頭が占領されやすい"}]},
+  {id:"t1-B",pairId:"t1",role:"B",stage:4,type:"q",stem:"【恋愛中】好きな人の返信が遅いときの行動は？",
+    choices:[{id:"D",label:"落ち着いて待てる"},{id:"C",label:"気にしつつ他のことに集中"},{id:"B",label:"スマホを何度も確認"},{id:"A",label:"追撃連絡を送ってしまう"}]},
+  // テーマ2：一人の時間
+  {id:"t2-A",pairId:"t2",role:"A",stage:4,type:"q",stem:"【普段】『一人の時間』をどう捉える？",
+    choices:[{id:"D",label:"自然に大切にできる"},{id:"C",label:"まあ大事だと思う"},{id:"B",label:"やることが無いと不安"},{id:"A",label:"一人が苦手で落ち着かない"}]},
+  {id:"t2-B",pairId:"t2",role:"B",stage:4,type:"q",stem:"【恋愛中】相手に『一人の時間が欲しい』と言われたら？",
+    choices:[{id:"D",label:"尊重して自分の時間に戻る"},{id:"C",label:"少し不安でも受け入れられる"},{id:"B",label:"内心ザワつき確認したくなる"},{id:"A",label:"パニックで詰めてしまう"}]},
+  // テーマ3：SNS
+  {id:"t3-A",pairId:"t3",role:"A",stage:4,type:"q",stem:"【普段】SNSの更新順に左右される？",
+    choices:[{id:"D",label:"ほぼ影響されない"},{id:"C",label:"少しざわつく程度"},{id:"B",label:"気になりやすい"},{id:"A",label:"心を大きく乱しやすい"}]},
+  {id:"t3-B",pairId:"t3",role:"B",stage:4,type:"q",stem:"【恋愛中】相手が自分より先にSNS更新して返信が無い時は？",
+    choices:[{id:"D",label:"事情と切り分けて受け止める"},{id:"C",label:"気になるが様子を見る"},{id:"B",label:"不安が強まりがち"},{id:"A",label:"強い不安で確認連絡をしてしまう"}]},
+  // テーマ4：嫉妬
+  {id:"t4-A",pairId:"t4",role:"A",stage:4,type:"q",stem:"【普段】他者との雑談を見ても？",
+    choices:[{id:"D",label:"特に動揺しない"},{id:"C",label:"少し気になる程度"},{id:"B",label:"モヤモヤを抱えやすい"},{id:"A",label:"強い嫉妬で頭がいっぱい"}]},
+  {id:"t4-B",pairId:"t4",role:"B",stage:4,type:"q",stem:"【恋愛中】好きな人が他の異性と楽しそうに話していたら？",
+    choices:[{id:"D",label:"信頼し落ち着いていられる"},{id:"C",label:"後で穏やかに共有"},{id:"B",label:"不機嫌/距離を取る"},{id:"A",label:"その場で詰める/感情的になる"}]},
+  // テーマ5：ケンカ
+  {id:"t5-A",pairId:"t5",role:"A",stage:4,type:"q",stem:"【普段】意見の衝突が起きたとき？",
+    choices:[{id:"D",label:"落ち着いて話し合える"},{id:"C",label:"一呼吸おける"},{id:"B",label:"感情が揺れやすい"},{id:"A",label:"感情的/黙り込みがち"}]},
+  {id:"t5-B",pairId:"t5",role:"B",stage:4,type:"q",stem:"【恋愛中】ケンカになったとき？",
+    choices:[{id:"D",label:"合意形成まで運べる"},{id:"C",label:"落ち着いて戻せる"},{id:"B",label:"無視/距離/詰める"},{id:"A",label:"爆発/連投/追及"}]},
+  // テーマ6：依存
+  {id:"t6-A",pairId:"t6",role:"A",stage:4,type:"q",stem:"【普段】人に依存しやすさは？",
+    choices:[{id:"D",label:"ほぼ依存せず自立的"},{id:"C",label:"適度に頼れる"},{id:"B",label:"依存傾向がある"},{id:"A",label:"強く依存しがち"}]},
+  {id:"t6-B",pairId:"t6",role:"B",stage:4,type:"q",stem:"【恋愛中】相手への依存は？",
+    choices:[{id:"D",label:"自立を保てる"},{id:"C",label:"バランスは概ね良い"},{id:"B",label:"頼りがちになる"},{id:"A",label:"強く依存/相手中心になる"}]},
+  // テーマ7：自己価値
+  {id:"t7-A",pairId:"t7",role:"A",stage:4,type:"q",stem:"【普段】自己肯定感は？",
+    choices:[{id:"D",label:"安定して高い"},{id:"C",label:"概ね安定"},{id:"B",label:"揺れやすい"},{id:"A",label:"低くなりやすい"}]},
+  {id:"t7-B",pairId:"t7",role:"B",stage:4,type:"q",stem:"【恋愛中】うまくいかない時に自己価値は？",
+    choices:[{id:"D",label:"大きくは揺れない"},{id:"C",label:"少し揺れるが立て直せる"},{id:"B",label:"自分を責めがち"},{id:"A",label:"自分の価値が無いと感じやすい"}]},
+  // テーマ8：境界
+  {id:"t8-A",pairId:"t8",role:"A",stage:4,type:"q",stem:"【普段】境界線（断る/お願いする）は？",
+    choices:[{id:"D",label:"適切に言語化できる"},{id:"C",label:"概ねできる"},{id:"B",label:"曖昧になりがち"},{id:"A",label:"ほぼ言えない"}]},
+  {id:"t8-B",pairId:"t8",role:"B",stage:4,type:"q",stem:"【恋愛中】境界線は？",
+    choices:[{id:"D",label:"適切に扱える"},{id:"C",label:"概ね扱える"},{id:"B",label:"甘くなる/合わせすぎる"},{id:"A",label:"言えずに飲み込みがち"}]},
+  // テーマ9：安心合図
+  {id:"t9-A",pairId:"t9",role:"A",stage:4,type:"q",stem:"【普段】自分を落ち着ける方法は？",
+    choices:[{id:"D",label:"確立して再現性が高い"},{id:"C",label:"いくつか持っている"},{id:"B",label:"時々うまくいく"},{id:"A",label:"ほとんど無い"}]},
+  {id:"t9-B",pairId:"t9",role:"B",stage:4,type:"q",stem:"【恋愛中】不安時のセルフケアは？",
+    choices:[{id:"D",label:"安定して機能する"},{id:"C",label:"多くは機能する"},{id:"B",label:"機能しづらい"},{id:"A",label:"ほぼ機能しない"}]},
+  // テーマ10：未来不安
+  {id:"t10-A",pairId:"t10",role:"A",stage:4,type:"q",stem:"【普段】未来への不安感は？",
+    choices:[{id:"D",label:"小さい/扱える"},{id:"C",label:"波はあるが扱える"},{id:"B",label:"やや強い"},{id:"A",label:"強くとらわれやすい"}]},
+  {id:"t10-B",pairId:"t10",role:"B",stage:4,type:"q",stem:"【恋愛中】未来への不安感は？",
+    choices:[{id:"D",label:"小さい/扱える"},{id:"C",label:"波はあるが扱える"},{id:"B",label:"強まりやすい"},{id:"A",label:"とても強くなる"}]},
 ];
 
-/*********************** 描画・状態 ************************/
-const app = document.getElementById('app');
-let index = 0; // 現在の設問index
-const answers = []; // {i, type}
+/* ====== 全体並び：Intro → S1 → Intro → S2 → Intro → S3 → Intro → S4 ====== */
+const INTRO1 = {type:"intro",stage:1,title:"第1段階：根っこの愛着スタイル（40〜60問）",
+  body:[
+    "過去の恋愛の『実際の行動』で答えてください。",
+    "選択肢は毎問リアルな行動に合わせて異なります（固定のA/B/C/Dではありません）。",
+    "A=不安／B=回避／C=恐れ回避／D=安定 に対応し、レーダーチャートに反映されます。"
+  ]};
 
-function pct(n){return Math.round((n/QUESTIONS.length)*100)}
+const FLOW = [
+  INTRO1, ...S1,
+  S2_INTRO, ...S2,
+  S3_INTRO, ...S3,
+  S4_INTRO, ...S4
+];
+
+/* ============================================================
+   進捗・UI
+============================================================ */
+const screen = document.getElementById('screen');
+const bar = document.getElementById('bar');
+const counter = document.getElementById('counter');
+
+let idx = 0;
+const answers = new Map(); // key = index in FLOW (question only) -> choiceId ("A".."D")
+
+const totalQuestions = FLOW.filter(x=>x.type==="q").length;
+function currentQuestionNumber(i){
+  let n=0;
+  for(let k=0;k<=i;k++){ if(FLOW[k].type==="q") n++; }
+  return n;
+}
+function progressPercent(i){
+  return Math.round(currentQuestionNumber(i) / Math.max(1,totalQuestions) * 100);
+}
 
 function render(){
-  app.innerHTML = '';
-  if(index >= QUESTIONS.length){
-    return renderResult();
+  const item = FLOW[idx];
+  const curN = currentQuestionNumber(idx);
+  const pct = progressPercent(idx);
+  counter.textContent = `${curN}/${totalQuestions} (${pct}%)`;
+  bar.style.width = `${pct}%`;
+
+  if(item.type==="intro"){
+    renderIntro(item);
+  }else{
+    renderQuestion(item, curN, pct);
   }
-  const q = QUESTIONS[index];
-  const card = document.createElement('div');
-  card.className = 'card';
-
-  // 進捗
-  const prog = document.createElement('div');
-  prog.className = 'card';
-  prog.style.marginBottom = '12px';
-  prog.innerHTML = `
-    <div class="row" style="margin-bottom:8px">
-      <div class="pill">進捗</div>
-      <div class="muted">${index+1}/${QUESTIONS.length}（${pct(index+1)}%）</div>
-    </div>
-    <div class="meter"><div class="bar" style="width:${pct(index+1)}%"></div></div>
-  `;
-  app.appendChild(prog);
-
-  // 見出し
-  const h = document.createElement('div');
-  h.innerHTML = `<div class="q-scope">第1段階：根っこの愛着スタイル（過去の自分で回答）</div>
-                 <div class="q-title">${q.stem}</div>`;
-  card.appendChild(h);
-
-  // 選択肢
-  const choicesWrap = document.createElement('div');
-  choicesWrap.className = 'grid2';
-  q.choices.forEach((c, idx) => {
-    const btn = document.createElement('button');
-    btn.className = 'choice';
-    btn.textContent = c.label;
-    const prev = answers[index]?.type;
-    if(prev === c.type) btn.classList.add('selected');
-    btn.onclick = () => {
-      answers[index] = { i:index, type:c.type };
-      // 再描画して選択状態を更新
-      render();
-    };
-    choicesWrap.appendChild(btn);
-  });
-  card.appendChild(choicesWrap);
-
-  // ナビ
-  const nav = document.createElement('div');
-  nav.className = 'nav';
-  const back = document.createElement('button');
-  back.className = 'btn btn-ghost';
-  back.textContent = '戻る';
-  back.onclick = () => { index = Math.max(0,index-1); render(); };
-
-  const next = document.createElement('button');
-  next.className = 'btn btn-primary';
-  next.textContent = (index+1===QUESTIONS.length) ? '結果を見る' : '次へ';
-  const selected = !!answers[index];
-  if(!selected) next.setAttribute('disabled','');
-  next.onclick = () => { if(!answers[index]) return; index++; render(); };
-
-  nav.appendChild(back);
-  nav.appendChild(next);
-  card.appendChild(nav);
-
-  // 未選択メッセ
-  if(!selected){
-    const warn = document.createElement('div');
-    warn.className = 'muted';
-    warn.style.marginTop = '6px';
-    warn.textContent = '未回答のまま次へは進めません';
-    card.appendChild(warn);
-  }
-
-  app.appendChild(card);
 }
 
-/*********************** 結果 ************************/
-function renderResult(){
-  // 集計
-  let A=0,B=0,C=0,D=0;
-  answers.forEach(a=>{ if(a.type==='A')A++; else if(a.type==='B')B++; else if(a.type==='C')C++; else if(a.type==='D')D++; });
-  const total = Math.max(1, A+B+C+D);
-  const pctA = Math.round(A*100/total), pctB=Math.round(B*100/total), pctC=Math.round(C*100/total), pctD=Math.round(D*100/total);
-
-  const sum = document.createElement('div');
-  sum.className = 'card';
-  sum.innerHTML = `
-    <div class="q-title" style="margin-bottom:10px">第1段階の結果</div>
-    <div class="result">
-      <div class="card"><b>不安型</b>：${pctA}%（${A}/${total}）</div>
-      <div class="card"><b>回避型</b>：${pctB}%（${B}/${total}）</div>
-      <div class="card"><b>恐れ回避型</b>：${pctC}%（${C}/${total}）</div>
-      <div class="card"><b>安定型</b>：${pctD}%（${D}/${total}）</div>
+function renderIntro(intro){
+  const root = document.createElement('div');
+  root.className = "intro";
+  root.innerHTML = `
+    <h2 class="qtitle" style="margin:0">${intro.title}</h2>
+    <div class="muted" style="margin:6px 0 14px">次のページからこの段階の設問が始まります。</div>
+    <div class="grid2">
+      <div class="card" style="border-style:dashed">
+        <div class="stage">ポイント</div>
+        <ul style="margin:8px 0 0 16px; padding:0; color:#6b7280; line-height:1.8;">
+          ${intro.body.map(t=>`<li>${t}</li>`).join("")}
+        </ul>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <div class="stage">ヒント</div>
+          <div class="muted" style="line-height:1.8">
+            正直に答えるほど結果が役立ちます。早押しせず、当時の自分/今の自分を思い出して選んでください。
+          </div>
+        </div>
+        <div class="row" style="margin-top:14px;justify-content:flex-end">
+          <button class="btn btn-primary" id="startStage">開始する</button>
+        </div>
+      </div>
     </div>
   `;
+  screen.replaceChildren(root);
+  document.getElementById('startStage').onclick = ()=>{ idx++; render(); };
+}
 
-  // 簡易ラベル
-  const ranks = [
-    {k:'不安型',v:pctA},
-    {k:'回避型',v:pctB},
-    {k:'恐れ回避型',v:pctC},
-    {k:'安定型',v:pctD},
-  ].sort((x,y)=>y.v-x.v);
-  const top = ranks[0].k;
-  const msgMap = {
-    '不安型':'成長中の不安型。安心の合図を設計していくと安定しやすい。',
-    '回避型':'距離を取りがち。境界とつながりの両立がカギ。',
-    '恐れ回避型':'近づきたい/怖いの同時進行。小さく安全に近づく練習が有効。',
-    '安定型':'安定傾向。いまのやり方を続けつつ相手に合わせて調整を。',
+function renderQuestion(q, n, pct){
+  const root = document.createElement('div');
+  const stageTitle = (q.stage===1) ? "第1段階：根っこの愛着スタイル（過去の自分で回答）"
+                    : (q.stage===2) ? "第2段階：成長・改善度（昔と今の比較）"
+                    : (q.stage===3) ? "第3段階：改善の安定度（ストレス下・一人のとき）"
+                    : "第4段階：隠れタイプ（普段 vs 恋愛中）";
+
+  root.innerHTML = `
+    <div class="stage">${stageTitle}</div>
+    <div class="qtitle">${q.stem}</div>
+  `;
+
+  const choices = document.createElement('div');
+  choices.className = "grid2";
+  const chosen = answers.get(idx);
+  q.choices.forEach(opt=>{
+    const b = document.createElement('button');
+    b.className = "choice" + (chosen===opt.id ? " selected" : "");
+    b.textContent = opt.label;
+    b.onclick = ()=>{
+      answers.set(idx, opt.id);
+      Array.from(choices.children).forEach(x=>x.classList.remove('selected'));
+      b.classList.add('selected');
+      nextBtn.disabled = false;
+      warn.style.visibility = 'hidden';
+    };
+    choices.appendChild(b);
+  });
+  root.appendChild(choices);
+
+  const nav = document.createElement('div');
+  nav.className = "row";
+  const back = document.createElement('button');
+  back.className = "btn btn-ghost";
+  back.textContent = "戻る";
+  back.onclick = ()=>{ if(idx>0){ idx--; render(); } };
+  back.disabled = idx===0;
+
+  const warn = document.createElement('div');
+  warn.className = "muted";
+  warn.textContent = "未回答のまま次へは進めません";
+  warn.style.flex = "1";
+  warn.style.textAlign = "center";
+  warn.style.visibility = answers.has(idx) ? 'hidden' : 'visible';
+
+  const nextBtn = document.createElement('button');
+  nextBtn.className = "btn btn-primary";
+  nextBtn.textContent = nextLabel();
+  nextBtn.disabled = !answers.has(idx);
+  nextBtn.onclick = ()=>{
+    if(!answers.has(idx)){ warn.style.visibility = 'visible'; return; }
+    if(idx < FLOW.length-1){ idx++; render(); }
+    else { showResult(); }
   };
 
-  const summary = document.createElement('div');
-  summary.className = 'card';
-  summary.innerHTML = `<div class="q-title">総合判定</div><div>${msgMap[top]}</div>`;
+  nav.appendChild(back);
+  nav.appendChild(warn);
+  nav.appendChild(nextBtn);
+  root.appendChild(nav);
 
-  const nav = document.createElement('div');
-  nav.className = 'nav';
-  const restart = document.createElement('button');
-  restart.className = 'btn btn-ghost';
-  restart.textContent = '最初からやり直す';
-  restart.onclick = ()=>{ index=0; answers.length=0; render(); };
-  nav.appendChild(restart);
-
-  app.appendChild(sum);
-  app.appendChild(summary);
-  app.appendChild(nav);
+  screen.replaceChildren(root);
 }
 
+function nextLabel(){
+  // 最後のアイテムなら「結果を見る」
+  if(idx===FLOW.length-1) return "結果を見る";
+  // 次が intro の場合でも文言は「次へ」でOK
+  return "次へ";
+}
+
+/* ============================================================
+   集計ロジック
+============================================================ */
+// 便利関数
+const scoreFromChoice = cid => ({A:0,B:1,C:2,D:3}[cid] ?? 0);
+
+function computeStage1(){
+  // レーダー用：A=不安 / B=回避 / C=恐れ回避 / D=安定
+  let a=0,b=0,c=0,d=0, cnt=0;
+  for(let i=0;i<FLOW.length;i++){
+    const it = FLOW[i];
+    if(it.type!=="q" || it.stage!==1) continue;
+    const cid = answers.get(i);
+    if(!cid) continue;
+    // S1 は選択肢に aff が付いている前提
+    const aff = (it.choices.find(ch=>ch.id===cid)?.aff)||null;
+    if(aff==="A") a++;
+    else if(aff==="B") b++;
+    else if(aff==="C") c++;
+    else if(aff==="D") d++;
+    cnt++;
+  }
+  const total = Math.max(1,a+b+c+d);
+  const pct = v=>Math.round(v/total*100);
+  return { anxious:pct(a), avoidant:pct(b), fearful:pct(c), secure:pct(d) };
+}
+
+function computeStage2(){
+  let sum=0, max=0;
+  for(let i=0;i<FLOW.length;i++){
+    const it = FLOW[i];
+    if(it.type!=="q" || it.stage!==2) continue;
+    const cid = answers.get(i);
+    if(!cid) continue;
+    sum += scoreFromChoice(cid);
+    max += 3;
+  }
+  const pct = max? Math.round(sum/max*100) : 0;
+  return pct; // 改善度％
+}
+
+function computeStage3(){
+  // 同じ0..3配点を％化
+  let sum=0, max=0;
+  for(let i=0;i<FLOW.length;i++){
+    const it = FLOW[i];
+    if(it.type!=="q" || it.stage!==3) continue;
+    const cid = answers.get(i);
+    if(!cid) continue;
+    sum += scoreFromChoice(cid);
+    max += 3;
+  }
+  const pct = max? Math.round(sum/max*100) : 0;
+  // ラベル
+  const label = (pct>=75) ? "強い" : (pct>=50) ? "ふつう" : (pct>=25) ? "やや弱い" : "弱い";
+  return { pct, label };
+}
+
+function computeStage4(){
+  // pairId ごとに A(普段) と B(恋愛中) の差分（B - A）
+  const pairs = {};
+  for(let i=0;i<FLOW.length;i++){
+    const it = FLOW[i];
+    if(it.type!=="q" || it.stage!==4) continue;
+    const cid = answers.get(i); // "A".."D"
+    if(!cid) continue;
+    const sc = scoreFromChoice(cid); // 0..3
+    if(!pairs[it.pairId]) pairs[it.pairId] = {};
+    pairs[it.pairId][it.role] = sc;
+  }
+  let deltas = [];
+  for(const pid in pairs){
+    const A = pairs[pid].A ?? 0;
+    const B = pairs[pid].B ?? 0;
+    // 普段(A)に比べて恋愛中(B)が悪化していればリスク上昇
+    const delta = (A - B); // AよりBが低い = マイナス（=悪化）
+    deltas.push(delta);
+  }
+  // deltaの平均が0に近い/プラス→ギャップ小、マイナスが大→恋愛中に悪化
+  const avg = deltas.length? deltas.reduce((p,c)=>p+c,0)/deltas.length : 0;
+  let label = "低（普段と恋愛中の差は少ない）";
+  if(avg < -0.75) label = "高（恋愛中は悪化しやすい）";
+  else if(avg < -0.35) label = "やや高（状況で悪化しがち）";
+  else if(avg < -0.05) label = "中（やや揺らぎあり）";
+  return { avg, label };
+}
+
+function dominantStyleLabel(s1){
+  const entries = [
+    ["不安型", s1.anxious],
+    ["回避型", s1.avoidant],
+    ["恐れ回避型", s1.fearful],
+    ["安定型", s1.secure],
+  ].sort((a,b)=>b[1]-a[1]);
+  return entries[0][0];
+}
+
+/* ============================================================
+   結果画面（レーダー付き）
+============================================================ */
+function showResult(){
+  // 計算
+  const s1 = computeStage1();
+  const s2pct = computeStage2();
+  const s3 = computeStage3();
+  const s4 = computeStage4();
+  const dom = dominantStyleLabel(s1);
+  const summaryMap = {
+    "不安型":"成長中の不安型。安心の合図を設計していくと安定しやすい。",
+    "回避型":"距離を取りがち。境界とつながりの両立がカギ。",
+    "恐れ回避型":"近づきたい/怖いが同時進行。小さく安全に近づく練習が有効。",
+    "安定型":"安定傾向。いまのやり方を続けつつ相手に合わせて調整を。"
+  };
+
+  const root = document.createElement('div');
+
+  // スコア概要
+  const head = document.createElement('div');
+  head.className = "grid2";
+  head.innerHTML = `
+    <div class="card">
+      <div class="stage">根っこの愛着スタイル（割合）</div>
+      <div class="grid2" style="margin-top:6px">
+        <div class="pill">不安型：${s1.anxious}%</div>
+        <div class="pill">回避型：${s1.avoidant}%</div>
+        <div class="pill">恐れ回避型：${s1.fearful}%</div>
+        <div class="pill">安定型：${s1.secure}%</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="stage">成長・改善度 / ストレス耐性 / 隠れタイプ</div>
+      <div class="grid2" style="margin-top:6px">
+        <div class="pill">成長度：${s2pct}%</div>
+        <div class="pill">ストレス耐性：${s3.label}（${s3.pct}%）</div>
+        <div class="pill">隠れタイプ：${s4.label}</div>
+        <div class="pill">優勢タイプ：${dom}</div>
+      </div>
+    </div>
+  `;
+  root.appendChild(head);
+
+  // レーダーチャート
+  const cvWrap = document.createElement('div');
+  cvWrap.className = "card";
+  cvWrap.style.marginTop = "12px";
+  const cv = document.createElement('canvas');
+  cv.height = 280;
+  cvWrap.appendChild(cv);
+  root.appendChild(cvWrap);
+
+  // 総合判定
+  const sum = document.createElement('div');
+  sum.className = "card";
+  sum.style.marginTop = "12px";
+  sum.innerHTML = `
+    <div class="qtitle" style="margin:0 0 6px">総合判定</div>
+    <div class="muted" style="line-height:1.9">
+      👉 「${summaryMap[dom]}」<br/>
+      ・第2段階の成長度：${s2pct}%（高いほど“以前より整えられている”）<br/>
+      ・第3段階のストレス耐性：${s3.label}（${s3.pct}%）<br/>
+      ・第4段階の隠れタイプ：${s4.label}
+    </div>
+  `;
+  root.appendChild(sum);
+
+  // リスタート
+  const nav = document.createElement('div');
+  nav.className = "row";
+  const restart = document.createElement('button');
+  restart.className = "btn btn-ghost";
+  restart.textContent = "最初からやり直す";
+  restart.onclick = ()=>{ answers.clear(); idx=0; render(); };
+  nav.appendChild(restart);
+  root.appendChild(nav);
+
+  // 描画
+  screen.replaceChildren(root);
+
+  // レーダー描画
+  new Chart(cv.getContext("2d"),{
+    type:"radar",
+    data:{
+      labels:["不安","回避","恐れ回避","安定"],
+      datasets:[{
+        label:"スタイル比率",
+        data:[s1.anxious, s1.avoidant, s1.fearful, s1.secure],
+        fill:true, borderWidth:2,
+        borderColor:"rgba(244,63,94,.9)",
+        backgroundColor:"rgba(244,63,94,.15)",
+        pointBackgroundColor:"rgba(244,63,94,1)"
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{ legend:{ display:false } },
+      scales:{ r:{
+        suggestedMin:0, suggestedMax:100,
+        ticks:{ stepSize:25, showLabelBackdrop:false },
+        grid:{ color:"rgba(251,113,133,.25)" }
+      }}
+    }
+  });
+}
+
+/* ============================================================
+   起動
+============================================================ */
 render();
 </script>
 </body>
