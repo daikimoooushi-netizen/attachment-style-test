@@ -1,29 +1,250 @@
 <!doctype html><html lang="ja"><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>4段階愛着診断（第1段階20問デモ）</title>
+<title>4段階愛着診断</title>
 <style>
-:root{--rose50:#fff1f2;--rose100:#ffe4e6;--rose200:#fecdd3;--rose300:#fda4af;--rose400:#fb7185;--rose500:#f43f5e;--rose600:#e11d48;--text:#7f1d1d}
-*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,ui-sans-serif;color:var(--text);background:linear-gradient(#fff,#fff5f6)}
-.wrap{max-width:860px;margin:24px auto;padding:20px}.h1{font-weight:800;font-size:28px;color:var(--rose600);text-align:center;margin:8px 0 4px}
-.muted{color:#9f1239;text-align:center;font-size:12px;margin-bottom:12px}
+:root{--rose50:#fff1f2;--rose100:#ffe4e6;--rose200:#fecdd3;--rose300:#fda4af;--rose400:#fb7185;--rose500:#f43f5e;--rose600:#e11d48;--ink:#7f1d1d}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,ui-sans-serif;color:var(--ink);background:linear-gradient(#fff,#fff5f6)}
+.wrap{max-width:880px;margin:22px auto;padding:18px}
+.h1{font-weight:800;font-size:26px;color:var(--rose600);text-align:center;margin:8px 0}
+.sub{color:#9f1239;text-align:center;font-size:12px;margin-bottom:14px}
 .card{background:#fff;border:1px solid var(--rose200);border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(244,63,94,.08)}
 .row{display:flex;gap:12px;align-items:center;justify-content:space-between}
 .bar{height:8px;background:var(--rose100);border-radius:999px;overflow:hidden}.bar>div{height:8px;background:var(--rose400)}
-.q{font-weight:700;margin:6px 0 12px}.choice{border:1px solid var(--rose200);border-radius:12px;padding:10px 12px;text-align:left;background:#fff;cursor:pointer}
+.sec{font-size:12px;color:#9f1239;margin:0 0 6px}
+.q{font-weight:700;line-height:1.6;margin:6px 0 10px}
+.choice{border:1px solid var(--rose200);border-radius:12px;padding:10px 12px;text-align:left;background:#fff;cursor:pointer}
 .choice:hover{border-color:var(--rose300)}.choice.sel{border-color:var(--rose400);background:var(--rose50)}
-.btn{border:none;border-radius:12px;padding:10px 16px;font-weight:700;color:#fff;background:var(--rose500);cursor:pointer}.btn:disabled{background:var(--rose300);cursor:not-allowed}
-.btn-ghost{background:#fff;color:var(--rose600);border:1px solid var(--rose200)}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+.btn{border:none;border-radius:12px;padding:10px 16px;font-weight:700;color:#fff;background:var(--rose500);cursor:pointer}
+.btn:disabled{background:var(--rose300);cursor:not-allowed}
+.btn-ghost{background:#fff;color:var(--rose600);border:1px solid var(--rose200)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+.badge{display:inline-block;border:1px solid var(--rose200);background:var(--rose50);color:var(--rose600);padding:3px 8px;border-radius:999px;font-size:12px}
+.small{font-size:12px;color:#a11a2b}
 </style></head><body><div class="wrap">
-<div class="h1">4段階愛着診断</div><div class="muted">スクショ保存OK。途中でやめても再開できます（第1段階デモ20問）。</div>
+<div class="h1">4段階愛着診断</div>
+<div class="sub">スクショで保存OK。途中終了→自動で続きから再開できます。</div>
 <div id="app"></div></div>
+
 <script>
-const QUESTIONS=[{stem:"過去の恋愛で、好きな人からの返信が遅かったとき、どうしていましたか？",choices:[["A","何度もLINEを送ってしまった"],["B","『なんで返信してくれないの？』と問い詰めた"],["C","平気を装ったが内心は不安でいっぱい"],["D","忙しいんだろうなと落ち着いて待てた"]]}, {stem:"相手がSNSを更新しているのに自分への返信がなかったとき、どうしていましたか？",choices:[["A","『私だけ無視？』と不安になった"],["B","わざと未読無視して距離を置いた"],["C","気にしないふりをしたが落ち込んだ"],["D","たまたまそういうこともあると流せた"]]}, {stem:"デート中に相手がスマホをよく見ていたとき、どう反応しましたか？",choices:[["A","『飽きたのかな』と不安になった"],["B","自分もスマホを見て距離を取った"],["C","笑顔でごまかしたが心は傷ついた"],["D","仕事かもと冷静に受け止めた"]]}, {stem:"相手が『今日は疲れてる』とそっけなかったとき、どうしていましたか？",choices:[["A","『嫌われた？』と不安が爆発"],["B","こちらも冷たく返して距離を作った"],["C","我慢して笑顔、心では孤独"],["D","休ませてあげようと受け止めた"]]}, {stem:"相手が予定を優先して会えなかったとき、あなたは？",choices:[["A","『私より予定が大事？』と不安に"],["B","『じゃあ私も自由に』と突き放した"],["C","表面は『大丈夫』と言いながら落ち込んだ"],["D","次に会える日を楽しみにできた"]]}, {stem:"相手が他の異性と楽しそうに話していたとき、あなたは？",choices:[["A","『取られるかも』と強い不安"],["B","自分も他の人と距離を縮めた"],["C","何も言えず笑顔でごまかした"],["D","信頼して気にしなかった"]]}, {stem:"相手からの返信が短文で冷たかったとき、あなたは？",choices:[["A","『嫌われた？』と不安に"],["B","自分もわざと短文で返した"],["C","明るく返したが落ち込んだ"],["D","疲れてるのかなと受け流せた"]]}, {stem:"相手が趣味や仕事を優先して自分が後回しにされたと感じたとき、どうしましたか？",choices:[["A","『大事じゃないのかな』と不安に"],["B","『勝手にして』と突き放した"],["C","応援したふりをしたが寂しかった"],["D","大事なことだし応援しようと思えた"]]}, {stem:"自分の気持ちを軽く流されたと感じたとき、どうしていましたか？",choices:[["A","『やっぱり伝わってない』と強い不安"],["B","それ以上話さず心を閉ざした"],["C","笑ってごまかしたが心に残った"],["D","タイミングを変えて話そうと思えた"]]}, {stem:"相手から『一人の時間が欲しい』と言われたとき、あなたは？",choices:[["A","『もう嫌われた？』と不安が爆発"],["B","『じゃあ私も好きにする』と距離"],["C","表面は『わかった』と言い内心は寂しい"],["D","理解して落ち着いて待てた"]]}, {stem:"相手が友達との予定を優先したとき、あなたは？",choices:[["A","『私より友達？』と拗ねた"],["B","自分も別の予定を入れて距離"],["C","『大丈夫』と言いながら寂しさを抱えた"],["D","『友達も大事だよね』と理解"]]}, {stem:"相手が誕生日や記念日を忘れていたとき、あなたは？",choices:[["A","『大事にされてない』と泣いた/怒った"],["B","『もう冷めた』と突き放した"],["C","平気なふりをしたが傷ついた"],["D","忙しかったのかもと受け止めた"]]}, {stem:"相手が急に連絡を減らしてきたとき、あなたは？",choices:[["A","不安で追いLINEした"],["B","自分も連絡を減らして距離"],["C","何も言えず待ち続けた"],["D","事情があるかもと冷静に考えた"]]}, {stem:"相手の態度が冷たくなったと感じたとき、どうしましたか？",choices:[["A","何度も理由を聞いて確認"],["B","『もういい』と突き放した"],["C","普通に振る舞ったが心は乱れた"],["D","タイミングを見て冷静に話し合い"]]}, {stem:"相手が自分の不安を『考えすぎ』と言ったとき、あなたは？",choices:[["A","さらに不安になって食い下がった"],["B","それ以上言わず黙った"],["C","『平気』と笑ったが傷ついた"],["D","『そうかも』と受け止め冷静に"]]}, {stem:"未読・既読スルーされたとき、どうしていましたか？",choices:[["A","送り直したり電話した"],["B","『もう知らない』と突き放した"],["C","平気なふりで返事を待った"],["D","忙しいと捉えて落ち着いて待てた"]]}, {stem:"相手が元恋人の話をしたとき、あなたは？",choices:[["A","『まだ好き？』と問い詰めた"],["B","不機嫌になり距離を取った"],["C","平気を装いながらモヤモヤ"],["D","昔の話だと冷静に受け止めた"]]}, {stem:"自分が体調不良のとき相手が心配してくれなかったら？",choices:[["A","『大事にされてない』と泣いた"],["B","『期待しない』と突き放した"],["C","笑顔を作って我慢した"],["D","事情があるのかもと受け流した"]]}, {stem:"気持ちを素直に伝えたら軽く流されたとき、あなたは？",choices:[["A","『やっぱりダメ』と不安が強まる"],["B","『もういい』と心を閉ざした"],["C","表面は笑って内心は落ち込んだ"],["D","今はタイミングじゃないと受け止めた"]]}, {stem:"相手の言動から『本当に愛されてる？』と不安になったとき、あなたは？",choices:[["A","確かめたくて何度も聞いた"],["B","不安を隠して冷たい態度を取った"],["C","何も言えずモヤモヤを抱えた"],["D","信頼して気持ちを落ち着けられた"]]}];
-const KEY="attch_demo_v1";let idx=0;let answers=JSON.parse(localStorage.getItem(KEY)||"[]");const app=document.getElementById("app");
-function render(){app.innerHTML="";const total=QUESTIONS.length;const prog=document.createElement("div");prog.className="card";prog.innerHTML=`<div class="row" style="margin-bottom:8px;font-size:12px;color:#9f1239;"><div>第1段階（過去の自分）</div><div>${Math.min(idx+1,total)}/${total}（${Math.round(((Math.min(idx,total))/total)*100)}%）</div></div><div class="bar"><div style="width:${Math.round((idx/total)*100)}%"></div></div>`;app.appendChild(prog);if(idx>=total){return renderResult();}
-const q=QUESTIONS[idx];const card=document.createElement("div");card.className="card";const selected=answers[idx]||null;card.innerHTML=`<div class="q">${q.stem}</div><div id="choices"></div><div class="row" style="margin-top:12px;"><button class="btn-ghost" ${idx===0?"disabled":""} id="prev">戻る</button><button class="btn" id="next" ${selected?"":"disabled"}>${idx+1===total?"結果を見る":"次へ"}</button></div>`;app.appendChild(card);
-const box=card.querySelector("#choices");q.choices.forEach(([id,label])=>{const b=document.createElement("button");b.className="choice"+(selected===id?" sel":"");b.textContent=label;b.onclick=()=>{answers[idx]=id;localStorage.setItem(KEY,JSON.stringify(answers));render();};box.appendChild(b);});
-card.querySelector("#prev").onclick=()=>{if(idx>0){idx--;render();}};card.querySelector("#next").onclick=()=>{if(!answers[idx])return;idx++;render();};}
-function renderResult(){let an=0,av=0,fe=0,se=0;answers.forEach(c=>{if(c==="A")an++;else if(c==="B")av++;else if(c==="C")fe++;else if(c==="D")se++;});const total=answers.length||1;const pct=v=>Math.max(0,Math.min(100,Math.round(v/total*100)));const wrap=document.createElement("div");wrap.className="card";const stylePct={anxious:pct(an),avoidant:pct(av),fearful:pct(fe),secure:pct(se)};const entries=Object.entries(stylePct).sort((a,b)=>b[1]-a[1]);const top=entries[0]?.[0]||"anxious";const summaryMap={anxious:"成長中の不安型。改善は進んでいるが、恋愛中は再燃しやすいタイプ。",avoidant:"距離を取りがちな回避型。自分のペースを守りつつ、対話の練習が鍵。",fearful:"近づきたいのに怖い恐れ回避型。安心感の土台づくりが最優先。",secure:"安定型の傾向が強め。いまのやり方を継続するとさらに安定。"};
-wrap.innerHTML=`<div class="h1" style="font-size:22px;margin:0 0 8px">診断結果</div><div class="grid2" style="margin:12px 0"><div class="card" style="border-color:var(--rose200)"><b>不安型</b>：${stylePct.anxious}%</div><div class="card" style="border-color:var(--rose200)"><b>回避型</b>：${stylePct.avoidant}%</div><div class="card" style="border-color:var(--rose200)"><b>恐れ回避型</b>：${stylePct.fearful}%</div><div class="card" style="border-color:var(--rose200)"><b>安定型</b>：${stylePct.secure}%</div></div><div class="card" style="border-color:var(--rose200);background:var(--rose50)">総合判定：${summaryMap[top]}</div><div class="row" style="margin-top:12px"><button class="btn-ghost" id="reset">最初からやり直す</button></div>`;app.appendChild(wrap);wrap.querySelector("#reset").onclick=()=>{localStorage.removeItem(KEY);idx=0;answers=[];render();};}
-render();
-</script></body></html>
+/* ================== 設問データ ================== */
+// 第1段階：根っこの愛着スタイル（過去の自分）A=不安 B=回避 C=恐れ回避 D=安定
+const S1 = [
+  {s:"過去の恋愛で、好きな人からの返信が遅かったとき、どうしていましたか？",c:[["A","何度もLINEを送ってしまった"],["B","『なんで？』と問い詰めた"],["C","平気を装すが内心は不安だらけ"],["D","忙しいだけと捉えて待てた"]]},
+  {s:"相手がSNS更新しているのに自分に返信が無いときは？",c:[["A","『無視？』と不安でいっぱい"],["B","わざと未読無視して距離を置く"],["C","気にしないふりで落ち込む"],["D","たまたまと流せた"]]},
+  {s:"デート中に相手がスマホばかり見ていたときは？",c:[["A","飽きられたかもと不安"],["B","自分も距離をとる行動に出た"],["C","笑顔でごまかし心は傷つく"],["D","仕事かもと受け止めた"]]},
+  {s:"『今日は疲れてる』とそっけないときは？",c:[["A","嫌われたかもと不安爆発"],["B","こちらも冷たくして距離"],["C","我慢して笑顔、内心孤独"],["D","休ませようと落ち着けた"]]},
+  {s:"予定優先で会えなかったときは？",c:[["A","『私より予定？』と不安"],["B","『じゃあ自由に』と突き放す"],["C","大丈夫と言い落ち込む"],["D","次を楽しみにできた"]]},
+  {s:"他の異性と楽しそうに話していたときは？",c:[["A","取られる不安でざわつく"],["B","自分も他と距離を縮める"],["C","笑顔で黙るがモヤる"],["D","信頼して見守れた"]]},
+  {s:"返信が短文で冷たいときは？",c:[["A","嫌われた？と不安"],["B","わざと短文で返す"],["C","明るく返しつつ落ち込む"],["D","疲れかなと受け流す"]]},
+  {s:"趣味/仕事を優先され後回しと感じたときは？",c:[["A","大事にされてない不安"],["B","『勝手にして』と突き放す"],["C","応援のふりで寂しい"],["D","応援しようと思えた"]]},
+  {s:"気持ちを軽く流されたと感じたときは？",c:[["A","伝わらないと強い不安"],["B","それ以上話さず閉じる"],["C","笑って流し心に残る"],["D","タイミングを改めようと思えた"]]},
+  {s:"『一人の時間が欲しい』と言われたときは？",c:[["A","嫌われた？と不安爆発"],["B","私も好きにすると距離"],["C","表面OK、内心寂しい"],["D","理解して落ち着けた"]]},
+  {s:"友達との予定を優先されたときは？",c:[["A","私より友達？と拗ねる"],["B","別の予定を入れて距離"],["C","大丈夫と言い寂しい"],["D","友達も大事と理解"]]},
+  {s:"記念日/誕生日を忘れられたときは？",c:[["A","大事にされてないと怒る/泣く"],["B","冷めたと突き放す"],["C","平気なふりで傷つく"],["D","忙しかっただけと受け止める"]]},
+  {s:"急に連絡が減ったときは？",c:[["A","不安で追いLINEする"],["B","自分も減らして距離"],["C","何も言えず待ち続ける"],["D","事情があるかもと考える"]]},
+  {s:"態度が冷たくなったと感じたときは？",c:[["A","理由を何度も確認する"],["B","『もういい』と突き放す"],["C","普通に振る舞い心乱れる"],["D","タイミングを見て話す"]]},
+  {s:"不安を『考えすぎ』と言われたときは？",c:[["A","さらに食い下がる"],["B","黙って引く"],["C","平気と笑い傷つく"],["D","そうかもと受け止める"]]},
+  {s:"未読/既読スルーのときは？",c:[["A","送り直し/電話する"],["B","もう知らないと突き放す"],["C","平気なふりで待つ"],["D","忙しいと解釈して待つ"]]},
+  {s:"元恋人の話をされたときは？",c:[["A","まだ好き？と問い詰める"],["B","不機嫌で距離をとる"],["C","平気を装いモヤる"],["D","昔の話と受け止める"]]},
+  {s:"自分が体調不良で心配されなかったときは？",c:[["A","大事にされてないと泣く"],["B","期待しないと突き放す"],["C","笑顔で我慢"],["D","事情があると受け流す"]]},
+  {s:"気持ちを素直に伝えて軽く流されたときは？",c:[["A","やっぱりダメだと不安増"],["B","もういいと閉じる"],["C","笑って落ち込む"],["D","今は時期でないと捉える"]]},
+  {s:"言動から『愛されてる？』と不安のときは？",c:[["A","何度も確かめる"],["B","不安を隠し冷たい態度"],["C","言えずモヤモヤを抱える"],["D","信頼して落ち着けた"]]},
+];
+// 第2段階：成長・改善度（A-Dの4段階）  polarity: "pos"(高い=良) / "neg"(高い=悪)
+const S2 = [
+  {s:"昔より不安時に落ち着けるようになった？",pol:"pos"},
+  {s:"依存的な行動は減った？",pol:"pos"},
+  {s:"相手に合わせすぎは減った？",pol:"pos"},
+  {s:"感情的になりやすさは改善した？",pol:"pos"},
+  {s:"『試す行動』は減った？",pol:"pos"},
+  {s:"連絡が3日無いとき今のあなたは？",pol:"pos"},
+  {s:"『一人の時間が欲しい』を受け止められる？",pol:"pos"},
+  {s:"ケンカ時に今のあなたは？",pol:"pos"},
+  {s:"他の異性と仲良く→今の対応は？",pol:"pos"},
+  {s:"不安を感じても自分で落ち着ける方法は？",pol:"pos"},
+  {s:"相談できなくても冷静さを保てる？",pol:"pos"},
+  {s:"恋愛以外の時間を大事にできる？",pol:"pos"},
+  {s:"相手がいなくても自分の価値を思える？",pol:"pos"},
+  {s:"恋愛がなくても生活は安定？",pol:"pos"},
+  {s:"『恋愛なくても幸せ』と思えることがある？",pol:"pos"},
+  {s:"頭は大丈夫でも心は不安になる？",pol:"neg"},
+  {s:"知識はあっても不安がぶり返す？",pol:"neg"},
+  {s:"『冷静でいよう』でも同じ行動をする？",pol:"neg"},
+  {s:"うまくいかないと自分を責める？",pol:"neg"},
+  {s:"『成長したのに揺らぐ』と感じる？",pol:"neg"},
+];
+// 第3段階：改善の安定度（ストレス下/一人/再発/再現性）
+const S3 = [
+  {s:"3日返信なし→どう感じそう？",pol:"neg"},
+  {s:"『距離を置きたい』と言われた→反応は？",pol:"neg"},
+  {s:"元カノ/元カレの話→どう感じやすい？",pol:"neg"},
+  {s:"急に冷たい態度→どんな気持ちに？",pol:"neg"},
+  {s:"不安で眠れなくなることがある？",pol:"neg"},
+  {s:"相談相手がいない時の対処は？",pol:"pos"},
+  {s:"恋人がいない期間も気持ちは安定？",pol:"pos"},
+  {s:"一人で不安を落ち着ける方法がある？",pol:"pos"},
+  {s:"一人休日→恋愛ばかり考える？",pol:"neg"},
+  {s:"SNSで不安になることは今でもある？",pol:"neg"},
+  {s:"恋愛が始まると昔の不安に戻る？",pol:"neg"},
+  {s:"相手を疑う気持ちがふと出る？",pol:"neg"},
+  {s:"ケンカで感情的になりやすい？",pol:"neg"},
+  {s:"不安で自分の価値を疑う？",pol:"neg"},
+  {s:"『もう大丈夫』でも恋愛中に揺らぐ？",pol:"neg"},
+  {s:"不安をぶつけそうでも落ち着ける？",pol:"pos"},
+  {s:"一度落ち着けばその後も安定？",pol:"pos"},
+  {s:"以前より冷静に話し合える？",pol:"pos"},
+  {s:"強い嫉妬/不安が出ても自分で修正できる？",pol:"pos"},
+  {s:"『安定した恋愛を続けられる自信』は？",pol:"pos"},
+];
+// 第4段階：隠れタイプ（10テーマ×A/B）
+const S4 = [
+  {t:"返信が遅い",A:["気にならない","少し気になるが切替え可","落ち着かなくなることがある","すぐ不安になる"],B:["何度も確認してしまう","嫌われたかもと考える","平気を装うが不安","忙しいと信じ落ち着ける"]},
+  {t:"『一人の時間が欲しい』",A:["理解できる","少し寂しいが割り切れる","否定された気持ちになる","強い孤独感"],B:["不安になり理由を確かめる","何度も連絡してしまう","表面OKで我慢","相手を尊重し安心できる"]},
+  {t:"既読/未読スルー",A:["気にしない","少し気になる","モヤつく","不安が強い"],B:["追撃連絡してしまう","試す行動をする","黙って耐える","事情があると待てる"]},
+  {t:"元恋人の話題",A:["昔話として受容","少し気になる","モヤモヤが残る","強い不安"],B:["問い詰める","不機嫌で距離","平気を装うが揺れる","冷静に受容"]},
+  {t:"友達優先",A:["理解できる","少し寂しい","価値が下がった気持ち","強い孤独感"],B:["拗ねる/責める","距離を取る","表面OKで我慢","予定を応援できる"]},
+  {t:"スマホ多用",A:["仕事かもと受容","少し寂しい","気持ちが沈む","不安が強い"],B:["不機嫌になる","自分も距離","黙って我慢","状況を確認して話す"]},
+  {t:"相手の異性友だち",A:["信頼できる","少し気になる","比較して不安","強い嫉妬"],B:["問い詰める","他で距離を縮める","明るく装うが不安","信頼して対応"]},
+  {t:"ケンカ後",A:["落ち着いて話せる","少し時間が必要","感情が先行","逃げたくなる"],B:["感情的にぶつかる","無視/距離を取る","何も言えず我慢","時間を置き対話する"]},
+  {t:"記念日を忘れられた",A:["多忙と理解","少し寂しい","傷つく","強く責めたくなる"],B:["怒る/泣く","冷めたふりをする","笑顔で我慢","状況を聞いて話す"]},
+  {t:"相手が忙しい期間",A:["自分の時間に集中","少し不安","孤独感が出る","強い不安"],B:["連絡頻度を強要","距離を置く/試す","耐えるだけになる","応援し自分を満たす"]},
+];
+
+/* ================== ステージ合成 ================== */
+const SCALE4 = [["A","全く/できない"],["B","少し"],["C","かなり"],["D","ほとんど/できる"]];
+function toStage2() {
+  return S2.map((q,i)=>({id:"s2-"+(i+1),stage:2,stem:q.s,choices:(q.pol==="pos"?SCALE4:[["A","全くその通り"],["B","ややその通り"],["C","あまり当てはまらない"],["D","全く当てはまらない"]]),polarity:q.pol}));
+}
+function toStage3() {
+  return S3.map((q,i)=>({id:"s3-"+(i+1),stage:3,stem:q.s,choices:(q.pol==="pos"?SCALE4:[["A","強く当てはまる"],["B","やや当てはまる"],["C","あまり当てはまらない"],["D","全く当てはまらない"]]),polarity:q.pol}));
+}
+function toStage1() {
+  return S1.map((q,i)=>({id:"s1-"+(i+1),stage:1,stem:q.s,choices:q.c}));
+}
+function toStage4(){
+  const rows=[];
+  S4.forEach((r,i)=>{
+    rows.push({id:`s4a-${i+1}`,stage:4,stem:`${r.t}｜A. 普段の自分`,choices:[["A",r.A[0]],["B",r.A[1]],["C",r.A[2]],["D",r.A[3]]],pair:`p${i}`});
+    rows.push({id:`s4b-${i+1}`,stage:4,stem:`${r.t}｜B. 恋愛中の自分`,choices:[["A",r.B[0]],["B",r.B[1]],["C",r.B[2]],["D",r.B[3]]],pair:`p${i}`});
+  });
+  return rows;
+}
+const QUESTIONS = [...toStage1(), ...toStage2(), ...toStage3(), ...toStage4()];
+
+/* ================== 集計 ================== */
+const KEY="att4_full_v1";
+const pct = v=>Math.max(0,Math.min(100,Math.round(v)));
+function scoreStage1(ans){let a=0,b=0,c=0,d=0;ans.forEach(ch=>{if(ch==="A")a++;else if(ch==="B")b++;else if(ch==="C")c++;else if(ch==="D")d++;});const t=a+b+c+d||1;return {anx:pct(a/t*100),avo:pct(b/t*100),fea:pct(c/t*100),sec:pct(d/t*100)};}
+function scoreStage2(rec){let pos=0,max=0;rec.forEach(r=>{const v={"A":0,"B":1,"C":2,"D":3}[r.choice];const pol=r.polarity==="pos"?1:-1;const norm=pol===1?v:(3-v);pos+=norm;max+=3;});return pct(pos/(max||1)*100);}
+function scoreStage3(rec){let pos=0,max=0;rec.forEach(r=>{const v={"A":0,"B":1,"C":2,"D":3}[r.choice];const norm=r.polarity==="pos"?v:(3-v);pos+=norm;max+=3;});const p=pct(pos/(max||1)*100);const label=p>=75?"強い":"ふつう";const lbl=p<45?"弱い":label;return {pct:p,label:lbl};}
+function scoreStage4(rec){const pairs={};rec.forEach(r=>{pairs[r.pair]=pairs[r.pair]||{A:null,B:null};if(r.id.startsWith("s4a"))pairs[r.pair].A=r.choice;else pairs[r.pair].B=r.choice;});let gap=0,cnt=0;Object.values(pairs).forEach(p=>{if(p.A&&p.B){const va={"A":0,"B":1,"C":2,"D":3}[p.A];const vb={"A":0,"B":1,"C":2,"D":3}[p.B];gap+=Math.abs(vb-va);cnt++;}});const avg=(gap/(cnt||1));const label=avg>=1.8?"高":avg>=0.8?"中":"低";return {avg:+avg.toFixed(2),label};}
+
+/* ================== 画面処理 ================== */
+let idx=0;
+let answers = JSON.parse(localStorage.getItem(KEY)||"[]"); // [{id,choice,stage,polarity,pair}]
+const app=document.getElementById("app");
+
+function save(){localStorage.setItem(KEY,JSON.stringify(answers));}
+function reset(){localStorage.removeItem(KEY);idx=0;answers=[];render();}
+
+function renderProgress(){
+  const total=QUESTIONS.length;
+  return `<div class="card"><div class="row" style="margin-bottom:8px;font-size:12px;color:#9f1239">
+    <div>第${(QUESTIONS[idx]?.stage)||4}段階</div>
+    <div>${Math.min(idx+1,total)}/${total}（${Math.round(idx/total*100)}%）</div>
+  </div><div class="bar"><div style="width:${Math.round(idx/total*100)}%"></div></div></div>`;
+}
+
+function renderQuestion(){
+  const q=QUESTIONS[idx];
+  const rec = answers.find(a=>a.id===q.id);
+  return `<div class="card"><div class="sec">${stageTitle(q.stage)}</div>
+    <div class="q">${q.stem}</div>
+    <div id="choices"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn-ghost" id="prev" ${idx===0?"disabled":""}>戻る</button>
+      <button class="btn" id="next" ${rec?"":"disabled"}>${idx+1===QUESTIONS.length?"結果を見る":"次へ"}</button>
+    </div>
+  </div>`;
+}
+
+function stageTitle(s){
+  return s===1?"第1段階：過去の自分（根っこ）"
+      : s===2?"第2段階：成長・改善度（昔↔今）"
+      : s===3?"第3段階：改善の安定度（ストレス下）"
+      : "第4段階：隠れタイプ（普段↔恋愛中）";
+}
+
+function renderResult(){
+  const byStage = (n)=>answers.filter(a=>a.stage===n);
+  const s1 = scoreStage1(byStage(1).map(a=>a.choice));
+  const s2 = scoreStage2(byStage(2));
+  const s3 = scoreStage3(byStage(3));
+  const s4 = scoreStage4(byStage(4));
+
+  const domin = Object.entries({不安型:s1.anx,回避型:s1.avo,恐れ回避型:s1.fea,安定型:s1.sec}).sort((a,b)=>b[1]-a[1])[0][0];
+  const summaryMap={
+    "不安型":"成長中の不安型。改善は進んでいるが、恋愛中は再燃しやすいタイプ。",
+    "回避型":"距離を取りがち。自分のペースを守りつつ対話の練習が鍵。",
+    "恐れ回避型":"近づきたいのに怖い。安心の土台づくりを最優先に。",
+    "安定型":"安定傾向が強め。いまのやり方を継続するとさらに安定。",
+  };
+  const hiddenLine = s4.label==="高" ? "普段は保てても恋愛中に揺らぎやすい（隠れタイプ高）。"
+                   : s4.label==="中" ? "状況次第で揺れやすいポイントあり。"
+                   : "普段と恋愛中の差は小さめ。";
+
+  return `<div class="card">
+    <div class="h1" style="font-size:22px;margin:0 0 8px">診断結果</div>
+    <div class="grid2" style="margin:10px 0">
+      <div class="card"><b>不安型</b>：${s1.anx}%</div>
+      <div class="card"><b>回避型</b>：${s1.avo}%</div>
+      <div class="card"><b>恐れ回避型</b>：${s1.fea}%</div>
+      <div class="card"><b>安定型</b>：${s1.sec}%</div>
+    </div>
+    <div class="grid2" style="margin:10px 0">
+      <div class="card"><b>現在の成長度</b>：${s2}%</div>
+      <div class="card"><b>ストレス耐性</b>：${s3.label}（${s3.pct}%）</div>
+    </div>
+    <div class="card" style="background:var(--rose50)">隠れタイプ：<b>${s4.label}</b>（普段と恋愛中の差の平均 ${s4.avg}）<br/><span class="small">${hiddenLine}</span></div>
+    <div class="card">総合判定：<b>${domin}</b>。${summaryMap[domin]}</div>
+    <div class="row" style="margin-top:12px"><button class="btn-ghost" id="reset">最初からやり直す</button></div>
+  </div>`;
+}
+
+function render(){
+  const total=QUESTIONS.length;
+  if(idx>=total){ app.innerHTML = renderResult(); document.getElementById("reset").onclick=reset; return; }
+  app.innerHTML = renderProgress()+renderQuestion();
+  const q=QUESTIONS[idx];
+  const chosen = (answers.find(a=>a.id===q.id)||{}).choice;
+
+  const box=document.getElementById("choices");
+  q.choices.forEach(([id,label])=>{
+    const b=document.createElement("button");
+    b.className = "choice"+(chosen===id?" sel":"");
+    b.textContent = label;
+    b.onclick=()=>{
+      const other = answers.filter(a=>a.id!==q.id);
+      answers=[...other,{id:q.id,choice:id,stage:q.stage,polarity:q.polarity||q.pol, pair:q.pair}];
+      save(); render();
+    };
+    box.appendChild(b);
+  });
+
+  document.getElementById("prev").onclick=()=>{ if(idx>0){idx--;render();}};
+  const nextBtn=document.getElementById("next");
+  nextBtn.onclick=()=>{ if(!answers.find(a=>a.id===q.id))return; idx++; render(); };
+}
+
+/* ========== 初期化 ========== */
+(function init(){
+  // 前回の続きに戻す
+  if(answers.length){
+    const lastId = answers[answers.length-1].id;
+    const pos = QUESTIONS.findIndex(q=>q.id===lastId);
+    idx = Math.min(pos+1, QUESTIONS.length);
+  }
+  render();
+})();
+</script>
+</body></html>
