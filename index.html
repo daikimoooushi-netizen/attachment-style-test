@@ -1,6 +1,365 @@
-<!doctype html><meta charset="utf-8">
-<title>test</title>
-<div id="app">loading…</div>
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>4段階愛着診断（ミニ実装：レーダー＋縦並び）</title>
+  <!-- Chart.js CDN（レーダーチャート用） -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root{
+      --rose50:#fff1f2; --rose100:#ffe4e6; --rose200:#fecdd3; --rose300:#fda4af;
+      --rose400:#fb7185; --rose500:#f43f5e; --rose600:#e11d48; --ink:#6b7280;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,"Hiragino Kaku Gothic ProN","Yu Gothic",
+      "Noto Sans JP",Arial,sans-serif; color:#1f2937; background:linear-gradient(#fff,#fff,#fff,#fff,var(--rose50));
+    }
+    .wrap{max-width:860px; margin:0 auto; padding:24px 16px 48px}
+    .h1{font-size:28px; font-weight:800; color:var(--rose600); text-align:center; margin:8px 0}
+    .sub{color:var(--ink); text-align:center; font-size:12px; margin-bottom:16px}
+    .bar{height:8px; background:var(--rose100); border-radius:999px; overflow:hidden; margin:8px 0 20px}
+    .bar>i{display:block; height:100%; width:0; background:var(--rose400); transition:width .3s}
+    .card{background:#fff; border:1px solid var(--rose200); border-radius:16px; padding:16px; box-shadow:0 1px 6px rgba(244,63,94,.08)}
+    .q{font-weight:700; line-height:1.6; margin:0 0 12px}
+    .choices{display:grid; gap:10px}
+    .choice{
+      text-align:left; border:1px solid var(--rose200); background:#fff; border-radius:12px;
+      padding:12px 14px; font-size:15px; cursor:pointer; transition:.15s;
+    }
+    .choice:hover{border-color:var(--rose300)}
+    .choice.selected{background:var(--rose50); border-color:var(--rose400)}
+    .row{display:flex; gap:10px; justify-content:flex-end; margin-top:12px}
+    .btn{
+      appearance:none; border:0; border-radius:12px; padding:10px 16px; font-weight:600;
+      background:var(--rose500); color:#fff; cursor:pointer;
+    }
+    .btn[disabled]{background:var(--rose300); cursor:not-allowed}
+    .btn-ghost{background:#fff; color:var(--rose500); border:1px solid var(--rose300)}
+    .muted{color:#9ca3af; font-size:12px; text-align:center; margin-top:8px}
+    /* 結果カード */
+    .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:12px 0}
+    .pill{font-size:13px; border-radius:999px; padding:6px 10px; border:1px solid var(--rose200); color:var(--rose600); background:#fff}
+    .notice{position:fixed; inset:auto 12px 12px 12px; max-width:860px; margin:0 auto; background:#fff5f6; border:1px solid var(--rose200); color:#be123c; border-radius:12px; padding:10px 12px; display:none}
+    @media (max-width:720px){ .grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 class="h1">4段階愛着診断</h1>
+    <div class="sub">画面に結果を表示します（スクショ/コピーOK）。保存機能は入れていません。</div>
+
+    <!-- 進捗 -->
+    <div class="bar"><i id="prog"></i></div>
+
+    <!-- 質問カード -->
+    <div id="screen" class="card"></div>
+
+    <div class="muted">※ 今はミニ実装（第1段階のサンプル設問）。選択肢は常に「縦並び」に統一しています。</div>
+  </div>
+
+  <div id="err" class="notice"></div>
+
 <script>
-  document.getElementById('app').textContent = 'JS OK ' + new Date().toISOString();
+/* =========================================================
+   仕様メモ（今回版）
+   - 単一HTML。外部は Chart.js のみ。
+   - 保存/統計なし。結果のみ表示。
+   - 選択肢は縦に並べ固定。設問ごとに内容は個別化。
+   - 第1段階のみサンプル実装（8問）。A/B/C/D→それぞれ
+     anxious/avoidant/fearful/secure + 強度（3/2/1/0）で加点。
+   - 結果はレーダーチャート＋簡易要約を表示。
+========================================================= */
+
+/** 型の代わりのコメント
+ * Choice = { label: string, style: "anxious"|"avoidant"|"fearful"|"secure", weight: 0|1|2|3 }
+ * Question = { id: string, stage: 1|2|3|4, stem: string, choices: Choice[] }
+ */
+
+// 第1段階サンプル（8問）— すべて「縦並び」想定の個別選択肢
+const QUESTIONS = [
+  {
+    id:"s1-1", stage:1,
+    stem:"過去の恋愛で、好きな人からの返信が遅かったとき、どうしていましたか？",
+    choices:[
+      {label:"何度もLINEを送ってしまった",              style:"anxious",  weight:3},
+      {label:"『なんで？』と問い詰めた/突き放した",       style:"avoidant", weight:2},
+      {label:"平気を装ったが内心は不安でいっぱい",        style:"fearful",  weight:2},
+      {label:"忙しいんだろうなと落ち着いて待てた",         style:"secure",   weight:0},
+    ]
+  },
+  {
+    id:"s1-2", stage:1,
+    stem:"SNSは更新されているのに自分への返信がなかったときの反応は？",
+    choices:[
+      {label:"『無視？』と強い不安でスマホを何度も確認",  style:"anxious",  weight:3},
+      {label:"わざと未読/短文で距離を置いた",             style:"avoidant", weight:2},
+      {label:"気にしないふりをしたがモヤモヤが続いた",     style:"fearful",  weight:1},
+      {label:"たまたまそういうこともあると流せた",        style:"secure",   weight:0},
+    ]
+  },
+  {
+    id:"s1-3", stage:1,
+    stem:"デート中に相手がスマホをよく見ていたときのあなたは？",
+    choices:[
+      {label:"『飽きた？』と不安で気持ちが落ち着かない",   style:"anxious",  weight:2},
+      {label:"自分もスマホを見て距離を作った",             style:"avoidant", weight:2},
+      {label:"笑顔でごまかしたが心では傷ついた",           style:"fearful",  weight:1},
+      {label:"仕事/急用かも、と冷静に受け止めた",          style:"secure",   weight:0},
+    ]
+  },
+  {
+    id:"s1-4", stage:1,
+    stem:"『一人の時間が欲しい』と言われたとき、どう反応していましたか？",
+    choices:[
+      {label:"『嫌われた？』と不安が爆発して連投",         style:"anxious",  weight:3},
+      {label:"『じゃあ私も勝手にする』と突き放した",       style:"avoidant", weight:2},
+      {label:"表面は『わかった』と言い内心は寂しさMAX",     style:"fearful",  weight:2},
+      {label:"理解して自分の時間に切り替えられた",         style:"secure",   weight:0},
+    ]
+  },
+  {
+    id:"s1-5", stage:1,
+    stem:"相手が他の異性と仲良くしているのを見たときの反応は？",
+    choices:[
+      {label:"『取られるかも』と強い不安で不機嫌に",       style:"anxious",  weight:3},
+      {label:"自分も距離を縮める/冷めた態度を取る",        style:"avoidant", weight:2},
+      {label:"何も言えず笑顔でやり過ごしたが心はざわつく", style:"fearful",  weight:1},
+      {label:"信頼して必要以上に気にしなかった",           style:"secure",   weight:0},
+    ]
+  },
+  {
+    id:"s1-6", stage:1,
+    stem:"態度が急に冷たくなったと感じたとき、あなたは？",
+    choices:[
+      {label:"何度も理由を聞いて確かめた/連投",            style:"anxious",  weight:3},
+      {label:"『もういい』と距離を置く/既読無視で対抗",     style:"avoidant", weight:2},
+      {label:"普通に振る舞うが心のざわつきは放置",          style:"fearful",  weight:1},
+      {label:"タイミングを見て冷静に話し合いを提案",        style:"secure",   weight:0},
+    ]
+  },
+  {
+    id:"s1-7", stage:1,
+    stem:"記念日を忘れられたとき、どうしていましたか？",
+    choices:[
+      {label:"『大事にされてない』と涙/怒りをぶつける",     style:"anxious",  weight:3},
+      {label:"『期待しない』と突き放す・距離を取る",        style:"avoidant", weight:2},
+      {label:"平気なふりをするが内心は傷ついたまま",         style:"fearful",  weight:1},
+      {label:"事情があったかもと受け止め方を変えられた",     style:"secure",   weight:0},
+    ]
+  },
+  {
+    id:"s1-8", stage:1,
+    stem:"未読/既読スルーが続いたとき、あなたは？",
+    choices:[
+      {label:"送り直し/電話など確かめ行動が止まらない",     style:"anxious",  weight:3},
+      {label:"『もう知らない』と連絡を減らし距離を置く",     style:"avoidant", weight:2},
+      {label:"表面は平静だが気持ちは沈み続ける",            style:"fearful",  weight:1},
+      {label:"忙しい可能性を考え様子を見る/落ち着いて待つ",  style:"secure",   weight:0},
+    ]
+  }
+];
+
+// ステート
+let index = 0;
+const answers = new Map(); // questionId -> choiceIndex
+
+// DOM参照
+const screen = document.getElementById("screen");
+const progEl = document.getElementById("prog");
+const errEl  = document.getElementById("err");
+
+// 進捗更新
+function setProgress(){
+  const pct = Math.round(((index+1)/QUESTIONS.length)*100);
+  progEl.style.width = Math.min(pct,100)+"%";
+}
+
+// 画面レンダリング（質問）
+function renderQuestion(){
+  setProgress();
+  const q = QUESTIONS[index];
+  const saved = answers.get(q.id);
+
+  const root = document.createElement("div");
+  const h = document.createElement("h2");
+  h.className="q";
+  h.textContent = `第${q.stage}段階 ${index+1}/${QUESTIONS.length}：` + q.stem;
+  root.appendChild(h);
+
+  // choices（縦並び固定）
+  const list = document.createElement("div");
+  list.className = "choices";
+  q.choices.forEach((ch, i)=>{
+    const b = document.createElement("button");
+    b.className = "choice" + (saved===i ? " selected":"");
+    b.textContent = ch.label;
+    b.onclick = ()=>{
+      answers.set(q.id, i);
+      // 全ボタンの見た目更新
+      Array.from(list.children).forEach((el, idx)=>{
+        el.classList.toggle("selected", idx===i);
+      });
+    };
+    list.appendChild(b);
+  });
+  root.appendChild(list);
+
+  // ナビ
+  const nav = document.createElement("div");
+  nav.className = "row";
+  // 戻る
+  const back = document.createElement("button");
+  back.className = "btn btn-ghost";
+  back.textContent = "戻る";
+  back.disabled = index===0;
+  back.onclick = ()=>{ index = Math.max(0, index-1); draw(); };
+  nav.appendChild(back);
+
+  // 次へ/結果
+  const next = document.createElement("button");
+  next.className = "btn";
+  next.textContent = (index===QUESTIONS.length-1) ? "結果を見る" : "次へ";
+  next.disabled = !answers.has(q.id);
+  next.onclick = ()=>{
+    if(!answers.has(q.id)){return;}
+    if(index===QUESTIONS.length-1){ renderResult(); }
+    else { index++; draw(); }
+  };
+  nav.appendChild(next);
+
+  root.appendChild(nav);
+  screen.replaceChildren(root);
+}
+
+// 結果集計
+function computeStyleScores(){
+  const totalMax = QUESTIONS.reduce((acc,q)=>{
+    // 最大は「style系のうち最大weight」を取ったと仮定して合算（％化の母数用）
+    const wmax = q.choices.reduce((m,c)=>Math.max(m, c.weight), 0);
+    return acc + wmax;
+  },0) || 1;
+
+  const sum = {anxious:0, avoidant:0, fearful:0, secure:0};
+  QUESTIONS.forEach(q=>{
+    const idx = answers.get(q.id);
+    if(idx==null) return;
+    const c = q.choices[idx];
+    sum[c.style] += c.weight;
+  });
+
+  const pct = {
+    anxious: Math.round((sum.anxious / totalMax)*100),
+    avoidant: Math.round((sum.avoidant / totalMax)*100),
+    fearful: Math.round((sum.fearful / totalMax)*100),
+    secure:  Math.round((sum.secure  / totalMax)*100),
+  };
+  return {sum, pct};
+}
+
+// 結果画面
+function renderResult(){
+  try{
+    const {pct} = computeStyleScores();
+
+    const root = document.createElement("div");
+    // 上：4指標のピル表示
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    grid.innerHTML = `
+      <div class="pill">不安型：${pct.anxious}%</div>
+      <div class="pill">回避型：${pct.avoidant}%</div>
+      <div class="pill">恐れ回避型：${pct.fearful}%</div>
+      <div class="pill">安定型：${pct.secure}%</div>
+    `;
+    root.appendChild(grid);
+
+    // レーダー
+    const chartCard = document.createElement("div");
+    chartCard.className = "card";
+    chartCard.innerHTML = `
+      <h3 class="q" style="margin-bottom:8px">レーダーチャート</h3>
+      <canvas id="radar" height="280"></canvas>
+    `;
+    root.appendChild(chartCard);
+
+    // 総合コメント
+    const comment = document.createElement("div");
+    comment.className = "card";
+    comment.style.marginTop = "12px";
+    const topKey = Object.entries(pct).sort((a,b)=>b[1]-a[1])[0][0];
+    const commentMap = {
+      anxious:"成長中の不安型傾向。安心感の確保がカギ。焦らず丁寧に。",
+      avoidant:"回避型傾向。距離の取り方は上手。対話の安全性づくりが効きます。",
+      fearful:"恐れ回避型傾向。近づきたい/怖いの両側面。『安心の経験』を積む土台づくりから。",
+      secure:"安定型が優勢。いまの態度を継続できるとさらに良い循環に。",
+    };
+    comment.innerHTML = `
+      <div class="q" style="margin-bottom:4px">総合判定</div>
+      <div>${commentMap[topKey] ?? ""}</div>
+      <div class="muted">※ 今は第1段階サンプルでの暫定判定です。</div>
+      <div class="row" style="justify-content:flex-end;margin-top:10px">
+        <button class="btn btn-ghost" id="again">最初からやり直す</button>
+      </div>
+    `;
+    root.appendChild(comment);
+
+    // 置き換え
+    screen.replaceChildren(root);
+    progEl.style.width = "100%";
+
+    // レーダー描画
+    const ctx = document.getElementById("radar");
+    const chart = new Chart(ctx, {
+      type:"radar",
+      data:{
+        labels:["不安型","回避型","恐れ回避型","安定型"],
+        datasets:[{
+          label:"あなたのスコア（%）",
+          data:[pct.anxious,pct.avoidant,pct.fearful,pct.secure],
+          fill:true,
+          borderColor:"rgba(244,63,94,1)",     // rose-500
+          backgroundColor:"rgba(244,63,94,.15)",
+          pointBackgroundColor:"rgba(244,63,94,1)",
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false, scales:{
+          r:{ suggestedMin:0, suggestedMax:100, ticks:{ stepSize:20 } }
+        },
+        plugins:{legend:{display:false}}
+      }
+    });
+
+    // 再開ボタン
+    document.getElementById("again").onclick = ()=>{
+      answers.clear(); index=0; draw();
+      window.scrollTo({top:0, behavior:"smooth"});
+    };
+  }catch(e){
+    showError(e);
+  }
+}
+
+// エラー表示
+function showError(e){
+  console.error(e);
+  errEl.textContent = "実行時エラー：" + (e?.message || e);
+  errEl.style.display = "block";
+  setTimeout(()=>{errEl.style.display="none"}, 6000);
+}
+
+// 画面を描画
+function draw(){
+  try{
+    if(index>=QUESTIONS.length){ renderResult(); return; }
+    renderQuestion();
+  }catch(e){ showError(e); }
+}
+
+// 初期表示
+draw();
 </script>
+</body>
+</html>
